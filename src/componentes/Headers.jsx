@@ -19,7 +19,10 @@ function Header(){
         </nav>
 
         {/* BOTÃO DE LOGIN */}
-        <button className="login_button">Logar</button>
+        <div className="buttons">
+            <Link to="/Cadastro" className="cadastro_button">Cadastrar</Link>
+            <Link to="/Login" className="login_button">Logar</Link>
+        </div>
         </header>
     );
 }
