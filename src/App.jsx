@@ -1,6 +1,7 @@
 import Header from "./componentes/Headers";
 import Sidebar from "./componentes/Sidebar";
-import Contato from "./pages/Contato";
+import Footer from "./componentes/Footer";
+import Agendamento from "./pages/Agendamento";
 import Home from "./pages/Home";
 import Produtos from "./pages/Produtos";
 import Cadastro from "./pages/Cadastro";
@@ -14,10 +15,11 @@ function App() {
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/Produtos" element={<Produtos />} />
-            <Route path="/Contatos" element={<Contato />} />
+            <Route path="/Agendamento" element={<Agendamento />} />
             <Route path="/Cadastro" element={<Cadastro />} />
             <Route path="/Login" element={<Login />} />
         </Routes>
+        <Footer/>
        </>
     )
 }

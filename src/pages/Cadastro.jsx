@@ -12,11 +12,26 @@ function Cadastro() {
 
   const [errors, setErrors] = useState({});
 
+  const formatCPF = (cpf) => {
+    const digits = cpf.replace(/\D/g, '').slice(0, 11);
+    const parts = [];
+    if (digits.length > 0) parts.push(digits.slice(0, 3));
+    if (digits.length > 3) parts.push(digits.slice(3, 6));
+    if (digits.length > 6) parts.push(digits.slice(6, 9));
+    let formatted = '';
+    if (parts.length > 0) formatted = parts[0];
+    if (parts.length > 1) formatted += '.' + parts[1];
+    if (parts.length > 2) formatted += '.' + parts[2];
+    if (digits.length > 9) formatted += '-' + digits.slice(9, 11);
+    return formatted;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    const newValue = name === 'cpf' ? formatCPF(value) : value;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: newValue
     });
   };
 

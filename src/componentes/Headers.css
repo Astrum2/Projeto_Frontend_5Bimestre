@@ -46,3 +46,29 @@
 .cadastro_button:hover, .login_button:hover {
   background-color: #f0f0f0;
 }
+
+.cadastro_button {
+  background-color: #9A1F1B;
+  color: #ffffff;
+}
+
+.cadastro_button:hover {
+  background-color: #7a1f1c;
+}
+
+.login_button {
+  background-color: #093956;
+  color: #ffffff;
+}
+
+.login_button:hover {
+  background-color: #0a2e44;
+}
+
+.logo {
+  margin-left: 10px;
+}
+
+.logo-link img {
+  height: 70px;
+}

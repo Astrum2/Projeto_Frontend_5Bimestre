@@ -6,7 +6,7 @@ function Header(){
         <header className="header">
         {/* ÁREA DA LOGO E DO NOME DA LOJA */}
             <div className="logo">
-                <Link to="/" className='logo-link'>CortaAí</Link>
+                <Link to="/" className='logo-link'><img src="/imagens/Logo.png" alt="CortaAí" /></Link>
             </div>
 
         {/* ÁREA DO MENU DE NAVEGAÇÃO NO MEIO */}
@@ -15,7 +15,7 @@ function Header(){
             <Link to="/Produtos">Serviços</Link>
             <Link to="/Sobre">Sobre</Link>
             <Link to="/Depoimentos">Depoimentos</Link>
-            <Link to="/Contatos">Contatos</Link>
+            <Link to="/Agendamento">Agendamento</Link>
         </nav>
 
         {/* BOTÃO DE LOGIN */}
