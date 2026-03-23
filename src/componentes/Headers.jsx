@@ -1,7 +1,10 @@
 import './Headers.css';
 import { Link } from "react-router-dom";
+import { useState } from 'react';
 
 function Header(){
+    const [isOpen, setIsOpen] = useState(false);
+
     return(
         <header className="header">
         {/* ÁREA DA LOGO E DO NOME DA LOJA */}
@@ -9,20 +12,27 @@ function Header(){
                 <Link to="/" className='logo-link'><img src="/imagens/Logo.png" alt="CortaAí" /></Link>
             </div>
 
+        {/* HAMBURGER MENU BUTTON */}
+        <button className="hamburger" onClick={() => setIsOpen(!isOpen)}>
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
         {/* ÁREA DO MENU DE NAVEGAÇÃO NO MEIO */}
-        <nav className="menu_header">
-            <Link to="/">Início</Link>
-            <Link to="/Produtos">Serviços</Link>
-            <Link to="/Sobre">Sobre</Link>
-            <Link to="/Depoimentos">Depoimentos</Link>
-            <Link to="/Agendamento">Agendamento</Link>
-        </nav>
+        <nav className={`menu_header ${isOpen ? 'open' : ''}`}>
+            <Link to="/" onClick={() => setIsOpen(false)}>Início</Link>
+            <Link to="/Serviços" onClick={() => setIsOpen(false)}>Serviços</Link>
+            <Link to="/Sobre" onClick={() => setIsOpen(false)}>Sobre</Link>
+            <Link to="/Depoimentos" onClick={() => setIsOpen(false)}>Depoimentos</Link>
+            <Link to="/Agendamento" onClick={() => setIsOpen(false)}>Agendamento</Link>
 
         {/* BOTÃO DE LOGIN */}
-        <div className="buttons">
-            <Link to="/Cadastro" className="cadastro_button">Cadastrar</Link>
-            <Link to="/Login" className="login_button">Logar</Link>
-        </div>
+            <div className="buttons">
+                <Link to="/Cadastro" className="cadastro_button" onClick={() => setIsOpen(false)}>Cadastrar</Link>
+                <Link to="/Login" className="login_button" onClick={() => setIsOpen(false)}>Logar</Link>
+            </div>
+        </nav>
         </header>
     );
 }

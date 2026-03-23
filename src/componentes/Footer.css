@@ -114,4 +114,8 @@
     flex-wrap: wrap;
     gap: 20px;
   }
+
+  .footer {
+    padding: 30px 15px 15px;
+  }
 }

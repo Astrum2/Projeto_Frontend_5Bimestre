@@ -4,6 +4,7 @@ import Footer from "./componentes/Footer";
 import Agendamento from "./pages/Agendamento";
 import Home from "./pages/Home";
 import Produtos from "./pages/Produtos";
+import Serviços from "./pages/Serviços";
 import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
 import { Route, Routes } from "react-router-dom";
@@ -15,6 +16,7 @@ function App() {
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/Produtos" element={<Produtos />} />
+            <Route path="/Serviços" element={<Serviços />} />
             <Route path="/Agendamento" element={<Agendamento />} />
             <Route path="/Cadastro" element={<Cadastro />} />
             <Route path="/Login" element={<Login />} />
