@@ -7,19 +7,17 @@ function Header(){
 
     return(
         <header className="header">
-        {/* ÁREA DA LOGO E DO NOME DA LOJA */}
+
             <div className="logo">
                 <Link to="/" className='logo-link'><img src="/imagens/Logo.png" alt="CortaAí" /></Link>
             </div>
 
-        {/* HAMBURGER MENU BUTTON */}
         <button className="hamburger" onClick={() => setIsOpen(!isOpen)}>
             <span></span>
             <span></span>
             <span></span>
         </button>
 
-        {/* ÁREA DO MENU DE NAVEGAÇÃO NO MEIO */}
         <nav className={`menu_header ${isOpen ? 'open' : ''}`}>
             <Link to="/" onClick={() => setIsOpen(false)}>Início</Link>
             <Link to="/Serviços" onClick={() => setIsOpen(false)}>Serviços</Link>
@@ -27,7 +25,6 @@ function Header(){
             <Link to="/Depoimentos" onClick={() => setIsOpen(false)}>Depoimentos</Link>
             <Link to="/Agendamento" onClick={() => setIsOpen(false)}>Agendamento</Link>
 
-        {/* BOTÃO DE LOGIN */}
             <div className="buttons">
                 <Link to="/Cadastro" className="cadastro_button" onClick={() => setIsOpen(false)}>Cadastrar</Link>
                 <Link to="/Login" className="login_button" onClick={() => setIsOpen(false)}>Logar</Link>

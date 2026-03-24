@@ -10,6 +10,16 @@
   color: #093956;
 }
 
+.status-servicos {
+  margin: 14px 0 20px;
+  color: #3d3d3d;
+  font-weight: 500;
+}
+
+.status-servicos.erro {
+  color: #9a1f1b;
+}
+
 .servicos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
