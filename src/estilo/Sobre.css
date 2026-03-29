@@ -1,0 +1,61 @@
+.sobre {
+  min-height: 100vh;
+  background: #f7f6f3;
+  color: #1b1b1b;
+  padding: 48px 20px 70px;
+}
+
+.sobre-header {
+  max-width: 900px;
+  margin: 0 auto 28px;
+  text-align: center;
+}
+
+.sobre-header h1 {
+  margin: 0 0 10px;
+  font-size: 2.1rem;
+}
+
+.sobre-header p {
+  margin: 0;
+  color: #5a5a5a;
+}
+
+.status {
+  text-align: center;
+  font-weight: 600;
+  margin: 22px 0;
+}
+
+.status.erro {
+  color: #a12020;
+}
+
+.barbeiros-lista {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.barbeiro-card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+}
+
+.barbeiro-numero {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-weight: 700;
+  color: #093956;
+}
+
+.barbeiro-card h2 {
+  margin: 0;
+  font-size: 1.12rem;
+  color: #111;
+}

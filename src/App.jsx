@@ -3,7 +3,7 @@ import Sidebar from "./componentes/Sidebar";
 import Footer from "./componentes/Footer";
 import Agendamento from "./pages/Agendamento";
 import Home from "./pages/Home";
-import Produtos from "./pages/Produtos";
+import Sobre from "./pages/Sobre";
 import Serviços from "./pages/Serviços";
 import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
@@ -15,7 +15,7 @@ function App() {
         <Header/>
         <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/Produtos" element={<Produtos />} />
+            <Route path="/Sobre" element={<Sobre />} />
             <Route path="/Serviços" element={<Serviços />} />
             <Route path="/Agendamento" element={<Agendamento />} />
             <Route path="/Cadastro" element={<Cadastro />} />

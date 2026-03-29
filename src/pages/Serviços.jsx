@@ -58,7 +58,12 @@ function Serviços() {
               return (
                 <div key={servico.id || `${servico.name}-${servico.price}`} className="servico-card">
                   <h2>{servico.name}</h2>
-                  <p>{servico.descrption}</p>
+                  <p className="descricao">
+                    {servico.description || servico.descrption || "Sem descricao"}
+                  </p>
+                  <p className="tempo">
+                    Tempo: {servico.duration_minutes ? `${servico.duration_minutes} min` : "Nao informado"}
+                  </p>
                   <p className="preco">
                     Preco: {Number.isFinite(preco) ? preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "Nao informado"}
                   </p>
