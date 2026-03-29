@@ -1,9 +1,44 @@
 import './Headers.css';
 import { Link } from "react-router-dom";
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { authChangedEvent, clearLoggedUser, getLoggedUser } from '../utils/auth';
 
 function Header(){
     const [isOpen, setIsOpen] = useState(false);
+    const [loggedUser, setLoggedUser] = useState(getLoggedUser());
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const userMenuRef = useRef(null);
+
+    useEffect(() => {
+        const syncAuthState = () => setLoggedUser(getLoggedUser());
+
+        window.addEventListener('storage', syncAuthState);
+        window.addEventListener(authChangedEvent, syncAuthState);
+
+        return () => {
+            window.removeEventListener('storage', syncAuthState);
+            window.removeEventListener(authChangedEvent, syncAuthState);
+        };
+    }, []);
+
+    useEffect(() => {
+        const closeOnOutsideClick = (event) => {
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+                setIsUserMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', closeOnOutsideClick);
+        return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+    }, []);
+
+    const userInitial = loggedUser?.nome?.charAt(0)?.toUpperCase() || 'U';
+
+    const handleLogout = () => {
+        clearLoggedUser();
+        setIsUserMenuOpen(false);
+        setIsOpen(false);
+    };
 
     return(
         <header className="header">
@@ -25,10 +60,36 @@ function Header(){
             <Link to="/Depoimentos" onClick={() => setIsOpen(false)}>Depoimentos</Link>
             <Link to="/Agendamento" onClick={() => setIsOpen(false)}>Agendamento</Link>
 
-            <div className="buttons">
-                <Link to="/Cadastro" className="cadastro_button" onClick={() => setIsOpen(false)}>Cadastrar</Link>
-                <Link to="/Login" className="login_button" onClick={() => setIsOpen(false)}>Logar</Link>
-            </div>
+            {loggedUser ? (
+                <div className="user-menu-wrapper" ref={userMenuRef}>
+                    <button
+                        className="avatar-button"
+                        type="button"
+                        onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                        aria-label="Abrir menu de usuário"
+                    >
+                        {userInitial}
+                    </button>
+
+                    {isUserMenuOpen && (
+                        <div className="user-dropdown">
+                            <p className="user-name">{loggedUser.nome || loggedUser.email}</p>
+                            <button
+                                className="logout-button"
+                                type="button"
+                                onClick={handleLogout}
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div className="buttons">
+                    <Link to="/Cadastro" className="cadastro_button" onClick={() => setIsOpen(false)}>Cadastrar</Link>
+                    <Link to="/Login" className="login_button" onClick={() => setIsOpen(false)}>Logar</Link>
+                </div>
+            )}
         </nav>
         </header>
     );

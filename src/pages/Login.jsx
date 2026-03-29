@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import '../estilo/Login.css';
+import { useNavigate } from 'react-router-dom';
+import { setLoggedUser } from '../utils/auth';
+import { requestJson } from '../utils/api';
 
 function Login() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     senha: ''
   });
 
   const [errors, setErrors] = useState({});
+  const [backendError, setBackendError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -17,9 +23,10 @@ function Login() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
+    setBackendError('');
 
     if (!formData.email) newErrors.email = 'Email é obrigatório';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email inválido';
@@ -27,9 +34,33 @@ function Login() {
 
     setErrors(newErrors);
 
-    if (Object.keys(newErrors).length === 0) {
-      // Submit form, e.g., send to server
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      const loginResponse = await requestJson('/login', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.senha
+        })
+      });
+
+      setLoggedUser({
+        nome: formData.email.split('@')[0],
+        email: formData.email,
+        token: loginResponse?.token
+      });
+
       alert('Login realizado com sucesso!');
+      navigate('/');
+    } catch (error) {
+      setBackendError(error.message || 'Nao foi possivel realizar login.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -59,7 +90,8 @@ function Login() {
           />
           {errors.senha && <span className="error">{errors.senha}</span>}
         </div>
-        <button type="submit">Entrar</button>
+        <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Entrando...' : 'Entrar'}</button>
+        {backendError && <span className="error">{backendError}</span>}
       </form>
     </div>
   );

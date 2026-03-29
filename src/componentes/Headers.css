@@ -29,6 +29,7 @@
 .buttons {
   display: flex;
   gap: 10px;
+  margin-left: auto;
 }
 
 .cadastro_button, .login_button {
@@ -73,6 +74,58 @@
   height: 70px;
 }
 
+.user-menu-wrapper {
+  position: relative;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+.avatar-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background: linear-gradient(135deg, #9a1f1b, #093956);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  min-width: 170px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+  z-index: 1200;
+}
+
+.user-name {
+  margin: 0 0 10px 0;
+  color: #111111;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.logout-button {
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 14px;
+  background-color: #093956;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background-color: #0a2e44;
+}
+
 .hamburger {
   display: none;
   flex-direction: column;
@@ -104,7 +157,7 @@
   .hamburger {
     display: flex;
     position: absolute;
-    left: 600px;
+    right: 20px;
     top: 50%;
     transform: translateY(-50%);
   }
@@ -139,6 +192,7 @@
     gap: 10px;
     width: 100%;
     margin-top: 10px;
+    margin-left: 0;
   }
 
   .cadastro_button, .login_button {
@@ -150,5 +204,19 @@
 
   .logo-link img {
     height: 50px;
+  }
+
+  .user-menu-wrapper {
+    width: 100%;
+    margin: 10px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .user-dropdown {
+    position: static;
+    margin-top: 10px;
+    width: 100%;
   }
 }

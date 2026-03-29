@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import '../estilo/Cadastro.css';
+import { useNavigate } from 'react-router-dom';
+import { setLoggedUser } from '../utils/auth';
+import { requestJson } from '../utils/api';
 
 function Cadastro() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -11,6 +15,8 @@ function Cadastro() {
   });
 
   const [errors, setErrors] = useState({});
+  const [backendError, setBackendError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formatCPF = (cpf) => {
     const digits = cpf.replace(/\D/g, '').slice(0, 11);
@@ -59,6 +65,7 @@ function Cadastro() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
+    setBackendError('');
 
     if (!formData.nome) newErrors.nome = 'Nome é obrigatório';
     if (!formData.email) newErrors.email = 'Email é obrigatório';
@@ -71,10 +78,48 @@ function Cadastro() {
 
     setErrors(newErrors);
 
-    if (Object.keys(newErrors).length === 0) {
-      // Submit form, e.g., send to server
-      alert('Cadastro realizado com sucesso!');
+    if (Object.keys(newErrors).length > 0) {
+      return;
     }
+
+    const cadastrarELogar = async () => {
+      try {
+        setIsSubmitting(true);
+
+        await requestJson('/users', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: formData.nome,
+            email: formData.email,
+            password: formData.senha,
+            cpf: formData.cpf.replace(/\D/g, '')
+          })
+        });
+
+        const loginResponse = await requestJson('/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.senha
+          })
+        });
+
+        setLoggedUser({
+          nome: formData.nome,
+          email: formData.email,
+          token: loginResponse?.token
+        });
+
+        alert('Cadastro realizado com sucesso!');
+        navigate('/');
+      } catch (error) {
+        setBackendError(error.message || 'Nao foi possivel finalizar o cadastro.');
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+    cadastrarELogar();
   };
 
   return (
@@ -137,7 +182,8 @@ function Cadastro() {
           />
           {errors.cpf && <span className="error">{errors.cpf}</span>}
         </div>
-        <button type="submit">Cadastrar</button>
+        <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Cadastrando...' : 'Cadastrar'}</button>
+        {backendError && <span className="error">{backendError}</span>}
       </form>
     </div>
   );
