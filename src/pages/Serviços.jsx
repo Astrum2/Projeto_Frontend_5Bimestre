@@ -88,8 +88,21 @@ function Serviços() {
         setCarregando(true);
         setMensagem("");
 
+       HEAD
         const servicosApi = await buscarServicosBackend(controller.signal);
         setServicos(servicosApi.slice(0, 6));
+
+        const resposta = await fetch(`${API_BASE_URL}/services`, {
+          signal: controller.signal,
+        });
+
+        if (!resposta.ok) {
+          throw new Error("Nao foi possivel carregar os servicos.");
+        }
+
+        const dados = await resposta.json();
+        setServicos(Array.isArray(dados) ? dados : []);
+
       } catch (error) {
         if (error.name !== "AbortError") {
           setServicos(GENERIC_SERVICES);
@@ -118,12 +131,12 @@ function Serviços() {
         <div className="servicos-grid">
           {servicos.length > 0 ? (
             servicos.map((servico) => {
-              const preco = Number(servico.preco);
+              const preco = Number(servico.price);
 
               return (
-                <div key={servico.id || `${servico.nome}-${servico.preco}`} className="servico-card">
-                  <h2>{servico.nome}</h2>
-                  <p>{servico.descricao}</p>
+                <div key={servico.id || `${servico.name}-${servico.price}`} className="servico-card">
+                  <h2>{servico.name}</h2>
+                  <p>{servico.descrption}</p>
                   <p className="preco">
                     Preco: {Number.isFinite(preco) ? preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "Sob consulta"}
                   </p>
