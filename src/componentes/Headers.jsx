@@ -74,6 +74,16 @@ function Header(){
                     {isUserMenuOpen && (
                         <div className="user-dropdown">
                             <p className="user-name">{loggedUser.nome || loggedUser.email}</p>
+                            <Link
+                                className="profile-link"
+                                to="/MinhaConta"
+                                onClick={() => {
+                                    setIsUserMenuOpen(false);
+                                    setIsOpen(false);
+                                }}
+                            >
+                                Minha Conta
+                            </Link>
                             <button
                                 className="logout-button"
                                 type="button"

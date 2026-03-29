@@ -7,6 +7,7 @@ import Sobre from "./pages/Sobre";
 import Serviços from "./pages/Serviços";
 import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
+import MinhaConta from "./pages/MinhaConta";
 import { Route, Routes } from "react-router-dom";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
             <Route path="/Agendamento" element={<Agendamento />} />
             <Route path="/Cadastro" element={<Cadastro />} />
             <Route path="/Login" element={<Login />} />
+            <Route path="/MinhaConta" element={<MinhaConta />} />
         </Routes>
         <Footer/>
        </>
