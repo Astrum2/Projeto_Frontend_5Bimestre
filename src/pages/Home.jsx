@@ -17,7 +17,7 @@ function Home() {
             <Link to="/Agendamento" className="btn primary">
               Agendar agora
             </Link>
-            <Link to="/Produtos" className="btn secondary">
+            <Link to="/Serviços" className="btn secondary">
               Conhecer serviços
             </Link>
           </div>
