@@ -56,3 +56,23 @@ button {
 button:hover {
   background-color: #333333;
 }
+
+.auth-switch-link {
+  display: block;
+  margin-top: 16px;
+  text-align: center;
+  color: #093956;
+  font-size: 0.95rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.auth-switch-link:hover {
+  color: #062739;
+}
+
+.auth-switch-link:focus-visible {
+  outline: 2px solid #093956;
+  outline-offset: 2px;
+  border-radius: 4px;
+}

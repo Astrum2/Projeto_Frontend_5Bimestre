@@ -93,6 +93,20 @@ function Login() {
         <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Entrando...' : 'Entrar'}</button>
         {backendError && <span className="error">{backendError}</span>}
       </form>
+
+      <span
+        className="auth-switch-link"
+        role="button"
+        tabIndex={0}
+        onClick={() => navigate('/cadastro')}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            navigate('/cadastro');
+          }
+        }}
+      >
+        Não tem uma conta? Faça o cadastro
+      </span>
     </div>
   );
 }

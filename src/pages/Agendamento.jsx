@@ -176,6 +176,10 @@ function Agendamento() {
             <h1>Agendamento</h1>
             <p>Preencha os dados abaixo para reservar seu horario.</p>
 
+            {!usuarioAutenticado && (
+                    <p className="status-servicos-agendamento erro">Faca login para criar um agendamento.</p>
+                )}
+
             <form className="form-agendamento" onSubmit={enviarAgendamento}>
                 <label>
                     Servico
@@ -199,9 +203,7 @@ function Agendamento() {
 
                 {erroServicos && <p className="status-servicos-agendamento erro">{erroServicos}</p>}
 
-                {!usuarioAutenticado && (
-                    <p className="status-servicos-agendamento erro">Faca login para criar um agendamento.</p>
-                )}
+                
 
                 <label>
                     Data
