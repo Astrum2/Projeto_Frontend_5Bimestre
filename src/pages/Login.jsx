@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../estilo/Login.css';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { setLoggedUser } from '../utils/auth';
 import { requestJson } from '../utils/api';
 
@@ -93,6 +93,11 @@ function Login() {
         <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Entrando...' : 'Entrar'}</button>
         {backendError && <span className="error">{backendError}</span>}
       </form>
+
+      <p className="login-signup-callout">
+        se não possue conta{' '}
+        <Link to="/Cadastro" className="login-signup-link">cadastra-se aqui!</Link>
+      </p>
     </div>
   );
 }

@@ -58,7 +58,6 @@ function Header(){
             <Link to="/Serviços" onClick={() => setIsOpen(false)}>Serviços</Link>
             <Link to="/Sobre" onClick={() => setIsOpen(false)}>Sobre</Link>
             <Link to="/Depoimentos" onClick={() => setIsOpen(false)}>Depoimentos</Link>
-            <Link to="/Agendamento" onClick={() => setIsOpen(false)}>Agendamento</Link>
 
             {loggedUser ? (
                 <div className="user-menu-wrapper" ref={userMenuRef}>
@@ -96,7 +95,7 @@ function Header(){
                 </div>
             ) : (
                 <div className="buttons">
-                    <Link to="/Cadastro" className="cadastro_button" onClick={() => setIsOpen(false)}>Cadastrar</Link>
+                    <Link to="/Agendamento" className="agendamento_button" onClick={() => setIsOpen(false)}>Agendamento</Link>
                     <Link to="/Login" className="login_button" onClick={() => setIsOpen(false)}>Logar</Link>
                 </div>
             )}

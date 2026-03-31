@@ -32,7 +32,7 @@
   margin-left: auto;
 }
 
-.cadastro_button, .login_button {
+.cadastro_button, .login_button, .agendamento_button {
   background-color: #ffffff;
   color: #000000;
   border: none;
@@ -44,7 +44,7 @@
   transition: background-color 0.3s ease;
 }
 
-.cadastro_button:hover, .login_button:hover {
+.cadastro_button:hover, .login_button:hover, .agendamento_button:hover {
   background-color: #f0f0f0;
 }
 
@@ -62,8 +62,14 @@
   color: #ffffff;
 }
 
-.login_button:hover {
-  background-color: #0a2e44;
+.login_button:hover,
+.agendamento_button:hover {
+  background-color: #7a1f1c;
+}
+
+.agendamento_button {
+  background-color: #9A1F1B;
+  color: #ffffff;
 }
 
 .logo {
@@ -213,7 +219,7 @@
     margin-left: 0;
   }
 
-  .cadastro_button, .login_button {
+  .cadastro_button, .login_button, .agendamento_button {
     width: 100%;
     text-align: center;
     padding: 10px;
