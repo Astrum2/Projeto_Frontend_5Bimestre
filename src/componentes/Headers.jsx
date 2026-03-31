@@ -57,7 +57,6 @@ function Header(){
             <Link to="/" onClick={() => setIsOpen(false)}>Início</Link>
             <Link to="/Serviços" onClick={() => setIsOpen(false)}>Serviços</Link>
             <Link to="/Sobre" onClick={() => setIsOpen(false)}>Sobre</Link>
-            <Link to="/Depoimentos" onClick={() => setIsOpen(false)}>Depoimentos</Link>
             <Link to="/Agendamento" onClick={() => setIsOpen(false)}>Agendamento</Link>
 
             {loggedUser ? (
