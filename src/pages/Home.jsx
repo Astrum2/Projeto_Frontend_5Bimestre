@@ -6,7 +6,7 @@ function Home() {
     <main className="home">
       <section className="hero">
         <div className="hero-content">
-          <p className="hero-tag">Barbearia CortaAí</p>
+          <p className="hero-tag">Barbearia Corta Aí</p>
           <h1>O corte perfeito, no seu ritmo</h1>
           <p className="hero-subtitle">
             Ambiente moderno, profissionais experientes e agendamento rápido. Venha
@@ -17,7 +17,7 @@ function Home() {
             <Link to="/Agendamento" className="btn primary">
               Agendar agora
             </Link>
-            <Link to="/Produtos" className="btn secondary">
+            <Link to="/Serviços" className="btn secondary">
               Conhecer serviços
             </Link>
           </div>

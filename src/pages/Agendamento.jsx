@@ -1,16 +1,36 @@
 import { useEffect, useState } from "react";
 import "../estilo/Agendamento.css";
+import { getLoggedUser } from "../utils/auth";
 
 const API_BASE_URL = (process.env.REACT_APP_API_URL || "http://localhost:3001").replace(/\/$/, "");
 const APPOINTMENTS_ENDPOINT = `${API_BASE_URL}/appointments`;
+const SERVICES_ENDPOINT = `${API_BASE_URL}/services`;
+const TIME_SLOT_START_HOUR = 8;
+const TIME_SLOT_END_HOUR = 20;
+const TIME_SLOT_INTERVAL_MINUTES = 15;
+
+function buildTimeSlots() {
+    const slots = [];
+
+    for (let hour = TIME_SLOT_START_HOUR; hour <= TIME_SLOT_END_HOUR; hour += 1) {
+        for (let minute = 0; minute < 60; minute += TIME_SLOT_INTERVAL_MINUTES) {
+            const hh = String(hour).padStart(2, "0");
+            const mm = String(minute).padStart(2, "0");
+            slots.push(`${hh}:${mm}`);
+        }
+    }
+
+    return slots;
+}
+
+const TIME_SLOTS = buildTimeSlots();
 
 function Agendamento() {
-    const [form, setForm] = useState({
-        nome: "",
-        telefone: "",
-        servico: "",
-        data: "",
-        horario: "",
+    const [appointmentForm, setAppointmentForm] = useState({
+        user_id: "",
+        service_id: "",
+        notes: "",
+        created_at: "",
     });
     const [enviando, setEnviando] = useState(false);
     const [mensagem, setMensagem] = useState("");
@@ -18,16 +38,34 @@ function Agendamento() {
     const [servicos, setServicos] = useState([]);
     const [carregandoServicos, setCarregandoServicos] = useState(true);
     const [erroServicos, setErroServicos] = useState("");
+    const [selectedDate, setSelectedDate] = useState("");
+    const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+
+    function buildCreatedAt(dateValue, timeValue) {
+        if (!dateValue || !timeValue) {
+            return "";
+        }
+
+        return `${dateValue}T${timeValue}`;
+    }
 
     useEffect(() => {
         const controller = new AbortController();
+        const authUser = getLoggedUser();
+
+        if (authUser?.id) {
+            setAppointmentForm((estadoAnterior) => ({
+                ...estadoAnterior,
+                user_id: String(authUser.id),
+            }));
+        }
 
         async function buscarServicos() {
             try {
                 setCarregandoServicos(true);
                 setErroServicos("");
 
-                const resposta = await fetch(APPOINTMENTS_ENDPOINT, {
+                const resposta = await fetch(SERVICES_ENDPOINT, {
                     signal: controller.signal,
                 });
 
@@ -37,10 +75,7 @@ function Agendamento() {
 
                 const dados = await resposta.json();
                 const lista = Array.isArray(dados) ? dados : [];
-                const nomesUnicos = [...new Set(lista.map((item) => item.servico || item.service).filter(Boolean))];
-                const opcoes = nomesUnicos.map((nome) => ({ nome }));
-
-                setServicos(opcoes);
+                setServicos(lista);
             } catch (error) {
                 if (error.name !== "AbortError") {
                     setErroServicos("Nao foi possivel carregar a lista de servicos.");
@@ -59,14 +94,39 @@ function Agendamento() {
 
     function atualizarCampo(evento) {
         const { name, value } = evento.target;
-        setForm((estadoAnterior) => ({
+        setAppointmentForm((estadoAnterior) => ({
             ...estadoAnterior,
             [name]: value,
         }));
     }
 
+    function atualizarData(evento) {
+        const nextDate = evento.target.value;
+        setSelectedDate(nextDate);
+        setAppointmentForm((estadoAnterior) => ({
+            ...estadoAnterior,
+            created_at: buildCreatedAt(nextDate, selectedTimeSlot),
+        }));
+    }
+
+    function atualizarHorario(evento) {
+        const nextTimeSlot = evento.target.value;
+        setSelectedTimeSlot(nextTimeSlot);
+        setAppointmentForm((estadoAnterior) => ({
+            ...estadoAnterior,
+            created_at: buildCreatedAt(selectedDate, nextTimeSlot),
+        }));
+    }
+
     async function enviarAgendamento(evento) {
         evento.preventDefault();
+        const authUser = getLoggedUser();
+
+        if (!authUser?.token) {
+            setErro(true);
+            setMensagem("Faca login para realizar o agendamento.");
+            return;
+        }
 
         try {
             setEnviando(true);
@@ -77,8 +137,15 @@ function Agendamento() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${authUser.token}`,
                 },
-                body: JSON.stringify(form),
+                body: JSON.stringify({
+                    ...appointmentForm,
+                    user_id: Number(appointmentForm.user_id),
+                    service_id: Number(appointmentForm.service_id),
+                    status: "scheduled",
+                    notes: appointmentForm.notes || null,
+                }),
             });
 
             if (!resposta.ok) {
@@ -86,13 +153,14 @@ function Agendamento() {
             }
 
             setMensagem("Agendamento enviado com sucesso!");
-            setForm({
-                nome: "",
-                telefone: "",
-                servico: "",
-                data: "",
-                horario: "",
-            });
+            setAppointmentForm((estadoAnterior) => ({
+                ...estadoAnterior,
+                service_id: "",
+                notes: "",
+                created_at: "",
+            }));
+            setSelectedDate("");
+            setSelectedTimeSlot("");
         } catch (error) {
             setErro(true);
             setMensagem("Falha ao enviar agendamento. Verifique o backend e tente novamente.");
@@ -101,49 +169,33 @@ function Agendamento() {
         }
     }
 
+    const usuarioAutenticado = Boolean(appointmentForm.user_id);
+
     return (
         <main className="agendamento">
             <h1>Agendamento</h1>
             <p>Preencha os dados abaixo para reservar seu horario.</p>
 
+            {!usuarioAutenticado && (
+                    <p className="status-servicos-agendamento erro">Faca login para criar um agendamento.</p>
+                )}
+
             <form className="form-agendamento" onSubmit={enviarAgendamento}>
-                <label>
-                    Nome
-                    <input
-                        type="text"
-                        name="nome"
-                        value={form.nome}
-                        onChange={atualizarCampo}
-                        required
-                    />
-                </label>
-
-                <label>
-                    Telefone
-                    <input
-                        type="tel"
-                        name="telefone"
-                        value={form.telefone}
-                        onChange={atualizarCampo}
-                        required
-                    />
-                </label>
-
                 <label>
                     Servico
                     <select
-                        name="servico"
-                        value={form.servico}
+                        name="service_id"
+                        value={appointmentForm.service_id}
                         onChange={atualizarCampo}
-                        disabled={carregandoServicos || servicos.length === 0}
+                        disabled={carregandoServicos || servicos.length === 0 || !usuarioAutenticado}
                         required
                     >
                         <option value="">
                             {carregandoServicos ? "Carregando servicos..." : "Selecione"}
                         </option>
                         {servicos.map((servico) => (
-                            <option key={servico.id || servico.nome} value={servico.nome}>
-                                {servico.nome}
+                            <option key={servico.id} value={String(servico.id)}>
+                                {servico.name}
                             </option>
                         ))}
                     </select>
@@ -151,29 +203,51 @@ function Agendamento() {
 
                 {erroServicos && <p className="status-servicos-agendamento erro">{erroServicos}</p>}
 
+                
+
                 <label>
                     Data
                     <input
                         type="date"
-                        name="data"
-                        value={form.data}
-                        onChange={atualizarCampo}
+                        name="appointment_date"
+                        value={selectedDate}
+                        onChange={atualizarData}
                         required
                     />
                 </label>
 
                 <label>
-                    Horario
-                    <input
-                        type="time"
-                        name="horario"
-                        value={form.horario}
-                        onChange={atualizarCampo}
+                    Horarios disponiveis (15 em 15 minutos)
+                    <select
+                        name="appointment_time_slot"
+                        value={selectedTimeSlot}
+                        onChange={atualizarHorario}
                         required
+                    >
+                        <option value="">Selecione um horario</option>
+                        {TIME_SLOTS.map((timeSlot) => (
+                            <option key={timeSlot} value={timeSlot}>
+                                {timeSlot}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+
+                <label>
+                    Observações
+                    <input
+                        type="text"
+                        name="notes"
+                        value={appointmentForm.notes}
+                        onChange={atualizarCampo}
+                        placeholder="Opcional"
                     />
                 </label>
 
-                <button type="submit" disabled={enviando || carregandoServicos || servicos.length === 0}>
+                <button
+                    type="submit"
+                    disabled={enviando || carregandoServicos || servicos.length === 0 || !usuarioAutenticado}
+                >
                     {enviando ? "Enviando..." : "Confirmar agendamento"}
                 </button>
             </form>

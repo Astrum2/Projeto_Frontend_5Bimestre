@@ -232,6 +232,20 @@ function Cadastro() {
 
         {backendError && <span className="error">{backendError}</span>}
       </form>
+
+      <span
+        className="auth-switch-link"
+        role="button"
+        tabIndex={0}
+        onClick={() => navigate('/login')}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            navigate('/login');
+          }
+        }}
+      >
+        Já tem uma conta? Faça login
+      </span>
     </div>
   );
 }

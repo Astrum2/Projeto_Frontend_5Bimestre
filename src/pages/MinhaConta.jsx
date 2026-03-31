@@ -7,6 +7,7 @@ import { requestJson } from '../utils/api';
 function MinhaConta() {
   const navigate = useNavigate();
   const [authUser] = useState(getLoggedUser());
+  const [lockedEmail, setLockedEmail] = useState('');
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -93,6 +94,8 @@ function MinhaConta() {
           email: profile?.email || authUser.email || '',
           cpf: formatCPF(profile?.cpf || authUser.cpf || '')
         }));
+
+        setLockedEmail(profile?.email || authUser.email || '');
       } catch (error) {
         setBackendMessage(error.message || 'Nao foi possivel carregar seus dados.');
       } finally {
@@ -105,6 +108,11 @@ function MinhaConta() {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+
+    if (name === 'email') {
+      return;
+    }
+
     const newValue = name === 'cpf' ? formatCPF(value) : value;
 
     setFormData((prev) => ({
@@ -160,7 +168,7 @@ function MinhaConta() {
 
       const payload = {
         name: formData.nome.trim(),
-        email: formData.email.trim(),
+        email: lockedEmail,
         cpf: formData.cpf
       };
 
@@ -181,7 +189,7 @@ function MinhaConta() {
         token: authUser.token,
         admin: authUser.admin,
         nome: updatedProfile?.name || formData.nome.trim(),
-        email: updatedProfile?.email || formData.email.trim(),
+        email: updatedProfile?.email || lockedEmail,
         cpf: updatedProfile?.cpf || formData.cpf
       });
 
@@ -230,6 +238,7 @@ function MinhaConta() {
           name="email"
           value={formData.email}
           onChange={handleChange}
+          readOnly
         />
         {errors.email && <span className="error">{errors.email}</span>}
 

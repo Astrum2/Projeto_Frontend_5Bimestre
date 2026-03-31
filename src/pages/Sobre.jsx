@@ -49,6 +49,14 @@ function Sobre() {
                     {barbeiros.length > 0 ? (
                         barbeiros.map((barbeiro) => (
                             <article className="barbeiro-card" key={barbeiro.id}>
+                                <img
+                                    className="barbeiro-foto"
+                                    src={`/imagens/${barbeiro.photo}`}
+                                    alt={`Foto de ${barbeiro.name}`}
+                                    onError={(evento) => {
+                                        evento.currentTarget.src = "/imagens/Logo.png";
+                                    }}
+                                />
                                 <span className="barbeiro-numero">#{barbeiro.id}</span>
                                 <h2>{barbeiro.name}</h2>
                             </article>
