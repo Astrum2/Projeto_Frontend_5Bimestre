@@ -17,6 +17,7 @@ function MinhaConta() {
     cpf: '',
     senha: '',
     confirmarSenha: '',
+    admin: '',
     ...(isAdmin && {
       telefone: '',
       imagem: null,
