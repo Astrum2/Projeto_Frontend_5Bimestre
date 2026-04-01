@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../estilo/Cadastro.css';
 import { useNavigate } from 'react-router-dom';
 import { setLoggedUser } from '../utils/auth';
 import { requestJson } from '../utils/api';
+import MessageBanner from '../componentes/MessageBanner';
 
 function Cadastro() {
   const navigate = useNavigate();
@@ -16,8 +17,17 @@ function Cadastro() {
   });
 
   const [errors, setErrors] = useState({});
-  const [backendError, setBackendError] = useState('');
+  const [message, setMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const redirectTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const formatCPF = (cpf) => {
     const digits = cpf.replace(/\D/g, '').slice(0, 11);
@@ -97,7 +107,7 @@ function Cadastro() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
-    setBackendError('');
+    setMessage(null);
 
     if (!formData.nome.trim()) {
       newErrors.nome = 'Nome é obrigatório';
@@ -161,10 +171,15 @@ function Cadastro() {
         token: loginResponse?.token
       });
 
-      alert('Cadastro realizado com sucesso!');
-      navigate('/');
+      setMessage({ type: 'success', text: 'Cadastro realizado com sucesso!' });
+      redirectTimeoutRef.current = window.setTimeout(() => {
+        navigate('/');
+      }, 1200);
     } catch (error) {
-      setBackendError(error.message || 'Nao foi possivel finalizar o cadastro.');
+      setMessage({
+        type: 'error',
+        text: error.message || 'Nao foi possivel finalizar o cadastro.'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -173,6 +188,7 @@ function Cadastro() {
   return (
     <div className="cadastro-container">
       <h2>Cadastro</h2>
+      <MessageBanner type={message?.type}>{message?.text}</MessageBanner>
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -210,8 +226,6 @@ function Cadastro() {
         <button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
         </button>
-
-        {backendError && <span className="error">{backendError}</span>}
       </form>
 
       <span

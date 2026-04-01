@@ -1,0 +1,30 @@
+.message-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.message-banner--success {
+  color: #1f5b3a;
+  background: #e8f7ee;
+  border-color: #b9e6c9;
+}
+
+.message-banner--error {
+  color: #7a1f1f;
+  background: #fdecec;
+  border-color: #f3b3b3;
+}
+
+.message-banner--info {
+  color: #1d4f7a;
+  background: #eaf4fd;
+  border-color: #bed9f4;
+}

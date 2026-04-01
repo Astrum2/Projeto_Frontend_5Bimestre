@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../estilo/Login.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { setLoggedUser } from '../utils/auth';
 import { requestJson } from '../utils/api';
+import MessageBanner from '../componentes/MessageBanner';
 
 function Login() {
   const navigate = useNavigate();
@@ -12,8 +13,17 @@ function Login() {
   });
 
   const [errors, setErrors] = useState({});
-  const [backendError, setBackendError] = useState('');
+  const [message, setMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const redirectTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,7 +36,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
-    setBackendError('');
+    setMessage(null);
 
     if (!formData.email) newErrors.email = 'Email é obrigatório';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email inválido';
@@ -55,10 +65,15 @@ function Login() {
         token: loginResponse?.token
       });
 
-      alert('Login realizado com sucesso!');
-      navigate('/');
+      setMessage({ type: 'success', text: 'Login realizado com sucesso!' });
+      redirectTimeoutRef.current = window.setTimeout(() => {
+        navigate('/');
+      }, 1200);
     } catch (error) {
-      setBackendError(error.message || 'Nao foi possivel realizar login.');
+      setMessage({
+        type: 'error',
+        text: error.message || 'Nao foi possivel realizar login.'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -67,19 +82,31 @@ function Login() {
   return (
     <div className="login-container">
       <h2>Login</h2>
+      <MessageBanner type={message?.type}>{message?.text}</MessageBanner>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="email">Email:</label>
-          <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} />
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
           {errors.email && <span className="error">{errors.email}</span>}
         </div>
         <div className="form-group">
           <label htmlFor="senha">Senha:</label>
-          <input type="password" id="senha" name="senha" value={formData.senha} onChange={handleChange} />
+          <input
+            type="password"
+            id="senha"
+            name="senha"
+            value={formData.senha}
+            onChange={handleChange}
+          />
           {errors.senha && <span className="error">{errors.senha}</span>}
         </div>
         <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Entrando...' : 'Entrar'}</button>
-        {backendError && <span className="error">{backendError}</span>}
       </form>
 
       <p className="login-signup-callout">
