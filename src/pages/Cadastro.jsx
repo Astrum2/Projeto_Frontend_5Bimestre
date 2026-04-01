@@ -36,29 +36,42 @@ function Cadastro() {
     return formatted;
   };
 
-  const validarCPF = (cpf) => {
-    cpf = cpf.replace(/\D/g, '');
+  const normalizeCPF = (value) => {
+    return value?.replace(/\D/g, '') ?? '';
+  };
 
-    if (cpf.length !== 11) return false;
-    if (/^(\d)\1+$/.test(cpf)) return false;
+  const validarCPF = (cpf) => {
+    const normalizedCpf = normalizeCPF(cpf);
+
+    if (!normalizedCpf || normalizedCpf.length !== 11) {
+      return false;
+    }
+
+    if (/^(\d)\1{10}$/.test(normalizedCpf)) {
+      return false;
+    }
 
     let sum = 0;
     for (let i = 0; i < 9; i++) {
-      sum += parseInt(cpf[i], 10) * (10 - i);
+      sum += parseInt(normalizedCpf[i], 10) * (10 - i);
     }
 
     let remainder = (sum * 10) % 11;
     if (remainder === 10) remainder = 0;
-    if (remainder !== parseInt(cpf[9], 10)) return false;
+    if (remainder !== parseInt(normalizedCpf[9], 10)) {
+      return false;
+    }
 
     sum = 0;
     for (let i = 0; i < 10; i++) {
-      sum += parseInt(cpf[i], 10) * (11 - i);
+      sum += parseInt(normalizedCpf[i], 10) * (11 - i);
     }
 
     remainder = (sum * 10) % 11;
     if (remainder === 10) remainder = 0;
-    if (remainder !== parseInt(cpf[10], 10)) return false;
+    if (remainder !== parseInt(normalizedCpf[10], 10)) {
+      return false;
+    }
 
     return true;
   };
@@ -164,49 +177,25 @@ function Cadastro() {
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="nome">Nome:</label>
-          <input
-            type="text"
-            id="nome"
-            name="nome"
-            value={formData.nome}
-            onChange={handleChange}
-          />
+          <input  type="text"  id="nome" name="nome"  value={formData.nome}  onChange={handleChange} />
           {errors.nome && <span className="error">{errors.nome}</span>}
         </div>
 
         <div className="form-group">
           <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
+          <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} />
           {errors.email && <span className="error">{errors.email}</span>}
         </div>
 
         <div className="form-group">
           <label htmlFor="senha">Senha:</label>
-          <input
-            type="password"
-            id="senha"
-            name="senha"
-            value={formData.senha}
-            onChange={handleChange}
-          />
+          <input type="password" id="senha" name="senha" value={formData.senha} onChange={handleChange} />
           {errors.senha && <span className="error">{errors.senha}</span>}
         </div>
 
         <div className="form-group">
           <label htmlFor="confirmarSenha">Confirmar Senha:</label>
-          <input
-            type="password"
-            id="confirmarSenha"
-            name="confirmarSenha"
-            value={formData.confirmarSenha}
-            onChange={handleChange}
-          />
+          <input type="password" id="confirmarSenha" name="confirmarSenha" value={formData.confirmarSenha} onChange={handleChange} />
           {errors.confirmarSenha && (
             <span className="error">{errors.confirmarSenha}</span>
           )}
@@ -214,15 +203,7 @@ function Cadastro() {
 
         <div className="form-group">
           <label htmlFor="cpf">CPF:</label>
-          <input
-            type="text"
-            id="cpf"
-            name="cpf"
-            value={formData.cpf}
-            onChange={handleChange}
-            placeholder="000.000.000-00"
-            maxLength={14}
-          />
+          <input type="text" id="cpf" name="cpf" value={formData.cpf} onChange={handleChange} placeholder="000.000.000-00" maxLength={14} />
           {errors.cpf && <span className="error">{errors.cpf}</span>}
         </div>
 

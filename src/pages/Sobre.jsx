@@ -8,7 +8,7 @@ function Sobre() {
     const [erro, setErro] = useState("");
 
     useEffect(() => {
-        let ativo = true;
+        let active = true;
 
         async function buscarBarbeiros() {
             try {
@@ -17,20 +17,24 @@ function Sobre() {
 
                 const dados = await requestJson("/barbers");
 
-                if (!ativo) return;
-                setBarbeiros(Array.isArray(dados) ? dados : []);
+                if (!active) return;
+                const barbeirosAtivos = Array.isArray(dados)
+                    ? dados.filter((barbeiro) => Number(barbeiro.active ?? barbeiro.ativo) !== 0)
+                    : [];
+
+                setBarbeiros(barbeirosAtivos);
             } catch (error) {
-                if (!ativo) return;
+                if (!active) return;
                 setErro(error.message || "Nao foi possivel carregar os barbeiros.");
             } finally {
-                if (ativo) setCarregando(false);
+                if (active) setCarregando(false);
             }
         }
 
         buscarBarbeiros();
 
         return () => {
-            ativo = false;
+            active = false;
         };
     }, []);
 

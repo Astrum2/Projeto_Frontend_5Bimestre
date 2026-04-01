@@ -70,24 +70,12 @@ function Login() {
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
+          <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} />
           {errors.email && <span className="error">{errors.email}</span>}
         </div>
         <div className="form-group">
           <label htmlFor="senha">Senha:</label>
-          <input
-            type="password"
-            id="senha"
-            name="senha"
-            value={formData.senha}
-            onChange={handleChange}
-          />
+          <input type="password" id="senha" name="senha" value={formData.senha} onChange={handleChange} />
           {errors.senha && <span className="error">{errors.senha}</span>}
         </div>
         <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Entrando...' : 'Entrar'}</button>

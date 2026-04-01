@@ -47,11 +47,7 @@ function Header(){
                 <Link to="/" className='logo-link'><img src="/imagens/Logo.png" alt="CortaAí" /></Link>
             </div>
 
-        <button className="hamburger" onClick={() => setIsOpen(!isOpen)}>
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+        <button className="hamburger" onClick={() => setIsOpen(!isOpen)}><span></span><span></span><span></span></button>
 
         <nav className={`menu_header ${isOpen ? 'open' : ''}`}>
             <Link to="/" onClick={() => setIsOpen(false)}>Início</Link>
@@ -62,14 +58,7 @@ function Header(){
 
             {loggedUser ? (
                 <div className="user-menu-wrapper" ref={userMenuRef}>
-                    <button
-                        className="avatar-button"
-                        type="button"
-                        onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                        aria-label="Abrir menu de usuário"
-                    >
-                        {userInitial}
-                    </button>
+                    <button className="avatar-button" type="button" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-label="Abrir menu de usuário">{userInitial}</button>
 
                     {isUserMenuOpen && (
                         <div className="user-dropdown">
@@ -84,13 +73,7 @@ function Header(){
                             >
                                 Minha Conta
                             </Link>
-                            <button
-                                className="logout-button"
-                                type="button"
-                                onClick={handleLogout}
-                            >
-                                Logout
-                            </button>
+                            <button className="logout-button" type="button" onClick={handleLogout}>Logout</button>
                         </div>
                     )}
                 </div>
