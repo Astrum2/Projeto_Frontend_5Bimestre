@@ -2,19 +2,27 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../estilo/MinhaConta.css';
 import { getLoggedUser, setLoggedUser } from '../utils/auth';
-import { requestJson } from '../utils/api';
+import { requestJson, uploadProfileImage } from '../utils/api';
 
 function MinhaConta() {
   const navigate = useNavigate();
   const [authUser] = useState(getLoggedUser());
   const [lockedEmail, setLockedEmail] = useState('');
 
+  const isAdmin = authUser?.admin === true;
+
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
     cpf: '',
     senha: '',
-    confirmarSenha: ''
+    confirmarSenha: '',
+    ...(isAdmin && {
+      telefone: '',
+      imagem: null,
+      imagemNome: '',
+      ativo: true
+    })
   });
 
   const [errors, setErrors] = useState({});
@@ -39,29 +47,42 @@ function MinhaConta() {
     return formatted;
   };
 
-  const validarCPF = (cpf) => {
-    cpf = cpf.replace(/\D/g, '');
+  const normalizeCPF = (value) => {
+    return value?.replace(/\D/g, '') ?? '';
+  };
 
-    if (cpf.length !== 11) return false;
-    if (/^(\d)\1+$/.test(cpf)) return false;
+  const validarCPF = (cpf) => {
+    const normalizedCpf = normalizeCPF(cpf);
+
+    if (!normalizedCpf || normalizedCpf.length !== 11) {
+      return false;
+    }
+
+    if (/^(\d)\1{10}$/.test(normalizedCpf)) {
+      return false;
+    }
 
     let sum = 0;
     for (let i = 0; i < 9; i++) {
-      sum += parseInt(cpf[i], 10) * (10 - i);
+      sum += parseInt(normalizedCpf[i], 10) * (10 - i);
     }
 
     let remainder = (sum * 10) % 11;
     if (remainder === 10) remainder = 0;
-    if (remainder !== parseInt(cpf[9], 10)) return false;
+    if (remainder !== parseInt(normalizedCpf[9], 10)) {
+      return false;
+    }
 
     sum = 0;
     for (let i = 0; i < 10; i++) {
-      sum += parseInt(cpf[i], 10) * (11 - i);
+      sum += parseInt(normalizedCpf[i], 10) * (11 - i);
     }
 
     remainder = (sum * 10) % 11;
     if (remainder === 10) remainder = 0;
-    if (remainder !== parseInt(cpf[10], 10)) return false;
+    if (remainder !== parseInt(normalizedCpf[10], 10)) {
+      return false;
+    }
 
     return true;
   };
@@ -88,11 +109,22 @@ function MinhaConta() {
           }
         });
 
-        setFormData((prev) => ({
-          ...prev,
+        const newFormData = {
           nome: profile?.name || authUser.nome || '',
           email: profile?.email || authUser.email || '',
           cpf: formatCPF(profile?.cpf || authUser.cpf || '')
+        };
+
+        if (isAdmin) {
+          newFormData.telefone = profile?.phone || '';
+          newFormData.imagem = null;
+          newFormData.imagemNome = profile?.photo || '';
+          newFormData.ativo = profile?.active !== undefined ? profile?.active : true;
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          ...newFormData
         }));
 
         setLockedEmail(profile?.email || authUser.email || '');
@@ -107,13 +139,27 @@ function MinhaConta() {
   }, [authUser, navigate]);
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value, type, checked, files } = event.target;
 
     if (name === 'email') {
       return;
     }
 
-    const newValue = name === 'cpf' ? formatCPF(value) : value;
+    let newValue = value;
+
+    if (type === 'checkbox') {
+      newValue = checked;
+    } else if (type === 'file') {
+      const file = files?.[0];
+      setFormData((prev) => ({
+        ...prev,
+        imagem: file || null,
+        imagemNome: file?.name || ''
+      }));
+      return;
+    } else if (name === 'cpf') {
+      newValue = formatCPF(value);
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -166,11 +212,25 @@ function MinhaConta() {
     try {
       setIsSubmitting(true);
 
+      let photoName = formData.imagemNome;
+      if (isAdmin && formData.imagem) {
+        const uploadResponse = await uploadProfileImage(formData.imagem, authUser.token);
+        photoName = uploadResponse?.fileName || photoName;
+      }
+
       const payload = {
         name: formData.nome.trim(),
         email: lockedEmail,
         cpf: formData.cpf
       };
+
+      if (isAdmin) {
+        payload.phone = formData.telefone.trim();
+        if (photoName) {
+          payload.photo = photoName;
+        }
+        payload.active = formData.ativo;
+      }
 
       if (formData.senha) {
         payload.password = formData.senha;
@@ -190,7 +250,13 @@ function MinhaConta() {
         admin: authUser.admin,
         nome: updatedProfile?.name || formData.nome.trim(),
         email: updatedProfile?.email || lockedEmail,
-        cpf: updatedProfile?.cpf || formData.cpf
+        cpf: updatedProfile?.cpf || formData.cpf,
+        ...(isAdmin && {
+          telefone: updatedProfile?.phone || formData.telefone,
+          imagem: null,
+          imagemNome: updatedProfile?.photo || formData.imagemNome,
+          ativo: updatedProfile?.active !== undefined ? updatedProfile.active : formData.ativo
+        })
       });
 
       setFormData((prev) => ({
@@ -253,6 +319,48 @@ function MinhaConta() {
           placeholder="000.000.000-00"
         />
         {errors.cpf && <span className="error">{errors.cpf}</span>}
+
+        {isAdmin && (
+          <>
+            <label htmlFor="telefone">Telefone</label>
+            <input
+              type="tel"
+              id="telefone"
+              name="telefone"
+              value={formData.telefone}
+              onChange={handleChange}
+              placeholder="(00) 00000-0000"
+            />
+            {errors.telefone && <span className="error">{errors.telefone}</span>}
+
+            <label htmlFor="imagem">Imagem</label>
+            <input
+              type="file"
+              id="imagem"
+              name="imagem"
+              onChange={handleChange}
+              accept="image/*"
+            />
+            {formData.imagemNome && (
+              <p style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>
+                Arquivo selecionado: {formData.imagemNome}
+              </p>
+            )}
+            {errors.imagem && <span className="error">{errors.imagem}</span>}
+
+            <label htmlFor="ativo">
+              <input
+                type="checkbox"
+                id="ativo"
+                name="ativo"
+                checked={formData.ativo}
+                onChange={handleChange}
+              />
+              Ativo
+            </label>
+            {errors.ativo && <span className="error">{errors.ativo}</span>}
+          </>
+        )}
 
         <label htmlFor="senha">Nova Senha</label>
         <input

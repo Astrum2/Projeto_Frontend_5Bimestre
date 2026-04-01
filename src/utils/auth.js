@@ -1,6 +1,14 @@
 const AUTH_STORAGE_KEY = 'loggedUser';
 const AUTH_EVENT_NAME = 'authChanged';
 
+export function normalizeAdminFlag(value) {
+  if (value === true || value === 1 || value === '1' || value === 'true') {
+    return true;
+  }
+
+  return false;
+}
+
 function parseJwtPayload(token) {
   if (!token || typeof token !== 'string') {
     return null;
@@ -41,7 +49,7 @@ export function setLoggedUser(userData) {
     ...userData,
     id: userData?.id || tokenData?.id,
     email: userData?.email || tokenData?.email,
-    admin: typeof userData?.admin === 'boolean' ? userData.admin : tokenData?.admin
+    admin: normalizeAdminFlag(userData?.admin ?? tokenData?.admin)
   };
 
   localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(normalizedUser));
