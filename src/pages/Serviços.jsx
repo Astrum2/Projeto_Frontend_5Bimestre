@@ -16,6 +16,13 @@ function Serviços() {
   const [editForm, setEditForm] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [newServiceForm, setNewServiceForm] = useState({
+    name: "",
+    description: "",
+    duration_minutes: "",
+    price: ""
+  });
 
   useEffect(() => {
     const syncAuthState = () => setLoggedUser(getLoggedUser());
@@ -135,6 +142,58 @@ function Serviços() {
     }
   };
 
+  const handleCreateClick = () => {
+    setIsCreating(true);
+  };
+
+  const handleCreateCancel = () => {
+    setIsCreating(false);
+    setNewServiceForm({
+      name: "",
+      description: "",
+      duration_minutes: "",
+      price: ""
+    });
+  };
+
+  const handleCreateChange = (e) => {
+    const { name, value } = e.target;
+    setNewServiceForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleCreateSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setMessage(null);
+
+    try {
+      const token = loggedUser?.token;
+      const response = await requestJson("/services", {
+        method: "POST",
+        body: JSON.stringify(newServiceForm),
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+
+      setServicos([...servicos, response]);
+      setMessage({ type: "success", text: "Serviço criado com sucesso!" });
+      setIsCreating(false);
+      setNewServiceForm({
+        name: "",
+        description: "",
+        duration_minutes: "",
+        price: ""
+      });
+      setTimeout(() => window.location.reload());
+    } catch (error) {
+      setMessage({ type: "error", text: error.message || "Erro ao criar serviço." });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="servicos-container">
       <h1>Nossos Servicos</h1>
@@ -146,6 +205,31 @@ function Serviços() {
 
       {!carregando && !erro && (
         <div className="servicos-grid">
+          {loggedUser?.admin && (
+            <div className="servico-card add-service-card">
+              {isCreating ? (
+                <form onSubmit={handleCreateSubmit} className="servico-form">
+                  <input type="text"  name="name"  value={newServiceForm.name}  onChange={handleCreateChange}  placeholder="Nome do serviço"  required/>
+                  <textarea  name="description"  value={newServiceForm.description}  onChange={handleCreateChange}  placeholder="Descrição"/>
+                  <input  type="number"  name="duration_minutes"  value={newServiceForm.duration_minutes}  onChange={handleCreateChange}  placeholder="Duração (minutos)"/>
+                  <input  type="number"  name="price"  value={newServiceForm.price}  onChange={handleCreateChange}  placeholder="Preço"  step="0.01"/>
+                  <div className="form-buttons">
+                    <button  type="submit"  className="btn-save"  disabled={isSubmitting}>
+                      {isSubmitting ? "Criando..." : "Criar Serviço"}
+                    </button>
+                    <button  type="button"  className="btn-cancel-edit"  onClick={handleCreateCancel}  disabled={isSubmitting}>
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <button className="btn-add-service" onClick={handleCreateClick}>
+                  <span className="add-icon">+</span>
+                  <span className="add-text">Novo Serviço</span>
+                </button>
+              )}
+            </div>
+          )}
           {servicos.length > 0 ? (
             servicos.map((servico) => {
               const preco = Number(servico.price);
