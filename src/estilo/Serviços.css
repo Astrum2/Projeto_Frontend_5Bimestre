@@ -59,6 +59,100 @@
   color: #093956;
 }
 
+.servico-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.servico-form input,
+.servico-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #cfd8dc;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  color: #093956;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.servico-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.servico-form input::placeholder,
+.servico-form textarea::placeholder {
+  color: #7a8a99;
+}
+
+.servico-form input:focus,
+.servico-form textarea:focus {
+  border-color: #0d6efd;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+.servico-form input[type="number"] {
+  appearance: textfield;
+}
+
+.servico-form input:disabled,
+.servico-form textarea:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.admin-actions,
+.form-buttons,
+.modal-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.admin-actions button,
+.form-buttons button,
+.modal-actions button {
+  padding: 18px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: auto;
+  min-width: 90px;
+}
+
+.btn-edit {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+.btn-delete,
+.btn-confirm {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.btn-save {
+  background-color: #198754;
+  color: #fff;
+}
+
+.btn-cancel-edit,
+.btn-cancel {
+  background-color: #6c757d;
+  color: #fff;
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
   .servicos-container {
