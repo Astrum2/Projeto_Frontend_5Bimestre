@@ -109,9 +109,9 @@ function Login() {
         <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Entrando...' : 'Entrar'}</button>
       </form>
 
-      <p className="login-signup-callout">
-        se não possue conta{' '}
-        <Link to="/Cadastro" className="login-signup-link">cadastra-se aqui!</Link>
+      <p className="auth-switch-callout">
+        Não possui conta?{' '}
+        <Link to="/Cadastro" className="auth-switch-link">Cadastre-se aqui</Link>
       </p>
 
     </div>

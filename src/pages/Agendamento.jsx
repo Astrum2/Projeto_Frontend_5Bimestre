@@ -1,30 +1,12 @@
 import { useEffect, useState } from "react";
 import "../estilo/Agendamento.css";
 import { getLoggedUser } from "../utils/auth";
+import { TIME_SLOTS } from "../utils/appointments";
 
 const API_BASE_URL = (process.env.REACT_APP_API_URL || "http://localhost:3001").replace(/\/$/, "");
 const APPOINTMENTS_ENDPOINT = `${API_BASE_URL}/appointments`;
 const SERVICES_ENDPOINT = `${API_BASE_URL}/services`;
 const BARBERS_ENDPOINT = `${API_BASE_URL}/barbers`;
-const TIME_SLOT_START_HOUR = 8;
-const TIME_SLOT_END_HOUR = 20;
-const TIME_SLOT_INTERVAL_MINUTES = 15;
-
-function buildTimeSlots() {
-    const slots = [];
-
-    for (let hour = TIME_SLOT_START_HOUR; hour <= TIME_SLOT_END_HOUR; hour += 1) {
-        for (let minute = 0; minute < 60; minute += TIME_SLOT_INTERVAL_MINUTES) {
-            const hh = String(hour).padStart(2, "0");
-            const mm = String(minute).padStart(2, "0");
-            slots.push(`${hh}:${mm}`);
-        }
-    }
-
-    return slots;
-}
-
-const TIME_SLOTS = buildTimeSlots();
 
 function Agendamento() {
     const [appointmentForm, setAppointmentForm] = useState({

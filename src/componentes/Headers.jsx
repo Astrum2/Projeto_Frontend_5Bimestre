@@ -74,6 +74,16 @@ function Header(){
                             >
                                 Minha Conta
                             </Link>
+                            <Link
+                                className="profile-link"
+                                to="/AgendamentoUsuario"
+                                onClick={() => {
+                                    setIsUserMenuOpen(false);
+                                    setIsOpen(false);
+                                }}
+                            >
+                                Meu Agendamentos
+                            </Link>
                             <button className="logout-button" type="button" onClick={handleLogout}>Logout</button>
                         </div>
                     )}

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../estilo/MinhaConta.css';
 import { getLoggedUser, setLoggedUser } from '../utils/auth';
 import { requestJson, uploadProfileImage } from '../utils/api';
+import { formatCPF, isValidEmail, validarCPF, validarSenha } from '../utils/validators';
 
 function MinhaConta() {
   const navigate = useNavigate();
@@ -30,71 +31,6 @@ function MinhaConta() {
   const [loading, setLoading] = useState(true);
   const [backendMessage, setBackendMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const formatCPF = (cpf) => {
-    const digits = cpf.replace(/\D/g, '').slice(0, 11);
-    const parts = [];
-
-    if (digits.length > 0) parts.push(digits.slice(0, 3));
-    if (digits.length > 3) parts.push(digits.slice(3, 6));
-    if (digits.length > 6) parts.push(digits.slice(6, 9));
-
-    let formatted = '';
-    if (parts.length > 0) formatted = parts[0];
-    if (parts.length > 1) formatted += '.' + parts[1];
-    if (parts.length > 2) formatted += '.' + parts[2];
-    if (digits.length > 9) formatted += '-' + digits.slice(9, 11);
-
-    return formatted;
-  };
-
-  const normalizeCPF = (value) => {
-    return value?.replace(/\D/g, '') ?? '';
-  };
-
-  const validarCPF = (cpf) => {
-    const normalizedCpf = normalizeCPF(cpf);
-
-    if (!normalizedCpf || normalizedCpf.length !== 11) {
-      return false;
-    }
-
-    if (/^(\d)\1{10}$/.test(normalizedCpf)) {
-      return false;
-    }
-
-    let sum = 0;
-    for (let i = 0; i < 9; i++) {
-      sum += parseInt(normalizedCpf[i], 10) * (10 - i);
-    }
-
-    let remainder = (sum * 10) % 11;
-    if (remainder === 10) remainder = 0;
-    if (remainder !== parseInt(normalizedCpf[9], 10)) {
-      return false;
-    }
-
-    sum = 0;
-    for (let i = 0; i < 10; i++) {
-      sum += parseInt(normalizedCpf[i], 10) * (11 - i);
-    }
-
-    remainder = (sum * 10) % 11;
-    if (remainder === 10) remainder = 0;
-    if (remainder !== parseInt(normalizedCpf[10], 10)) {
-      return false;
-    }
-
-    return true;
-  };
-
-  const validarSenha = (senha) => {
-    const hasUpperCase = /[A-Z]/.test(senha);
-    const hasNumber = /\d/.test(senha);
-    const hasSpecial = /[^A-Za-z0-9]/.test(senha);
-
-    return senha.length >= 7 && hasUpperCase && hasNumber && hasSpecial;
-  };
 
   useEffect(() => {
     if (!authUser?.id || !authUser?.token) {
@@ -185,7 +121,7 @@ function MinhaConta() {
 
     if (!formData.email.trim()) {
       newErrors.email = 'Email é obrigatório';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!isValidEmail(formData.email)) {
       newErrors.email = 'Email inválido';
     }
 

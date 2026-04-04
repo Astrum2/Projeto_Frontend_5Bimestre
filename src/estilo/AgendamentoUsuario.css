@@ -1,0 +1,239 @@
+.agendamento-usuario {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.agendamento-usuario h1,
+.agendamento-usuario h2 {
+  margin: 0;
+  color: #093956;
+}
+
+.agendamento-usuario p {
+  margin: 10px 0 0;
+  color: #4a4a4a;
+}
+
+.agendamento-usuario__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.agendamento-usuario__link,
+.agendamento-usuario__ghost-button,
+.agendamento-usuario__form button,
+.agendamento-usuario__card-actions button {
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.agendamento-usuario__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  background: #093956;
+  color: #ffffff;
+  text-decoration: none;
+  min-width: 160px;
+}
+
+.agendamento-usuario__card {
+  background: #ffffff;
+  border: 1px solid #e7e7e7;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
+}
+
+.agendamento-usuario__panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.agendamento-usuario__ghost-button {
+  background: #eef4f7;
+  color: #093956;
+  padding: 10px 14px;
+}
+
+.agendamento-usuario__form {
+  display: grid;
+  gap: 14px;
+}
+
+.agendamento-usuario__form label {
+  display: grid;
+  gap: 6px;
+  color: #222;
+  font-weight: 600;
+}
+
+.agendamento-usuario__form input,
+.agendamento-usuario__form select {
+  padding: 10px 12px;
+  border: 1px solid #cfcfcf;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.agendamento-usuario__form button {
+  margin-top: 4px;
+  padding: 12px 16px;
+  background: #093956;
+  color: #ffffff;
+}
+
+.agendamento-usuario__list h2 {
+  margin-bottom: 16px;
+}
+
+.agendamento-usuario__empty {
+  margin-top: 8px;
+  color: #666;
+}
+
+.agendamento-usuario__empty--edit {
+  margin-bottom: 24px;
+}
+
+.agendamento-usuario__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(5, 18, 28, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.agendamento-usuario__overlay-card {
+  width: min(920px, 100%);
+  max-height: min(92vh, 900px);
+  overflow: auto;
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.35);
+}
+
+.agendamento-usuario__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.agendamento-usuario__card {
+  padding: 18px;
+}
+
+.agendamento-usuario__card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.agendamento-usuario__card-top strong {
+  color: #111;
+}
+
+.agendamento-usuario__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.agendamento-usuario__badge--scheduled {
+  background: #eaf4fd;
+  color: #1d4f7a;
+}
+
+.agendamento-usuario__badge--completed {
+  background: #e8f7ee;
+  color: #1f5b3a;
+}
+
+.agendamento-usuario__badge--cancelled {
+  background: #fdecec;
+  color: #7a1f1f;
+}
+
+.agendamento-usuario__card p {
+  margin: 10px 0 0;
+}
+
+.agendamento-usuario__card p span {
+  font-weight: 700;
+  color: #222;
+}
+
+.agendamento-usuario__card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.agendamento-usuario__card-actions button {
+  flex: 1;
+  padding: 11px 12px;
+  background: #093956;
+  color: #ffffff;
+}
+
+.agendamento-usuario__danger-button {
+  background: #9a1f1b !important;
+}
+
+.agendamento-usuario__card-actions button:hover,
+.agendamento-usuario__form button:hover,
+.agendamento-usuario__link:hover,
+.agendamento-usuario__ghost-button:hover {
+  transform: translateY(-1px);
+}
+
+.agendamento-usuario__card-actions button:disabled,
+.agendamento-usuario__form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .agendamento-usuario__header,
+  .agendamento-usuario__panel-header {
+    flex-direction: column;
+  }
+
+  .agendamento-usuario__link {
+    width: 100%;
+  }
+
+  .agendamento-usuario__card-actions {
+    flex-direction: column;
+  }
+
+  .agendamento-usuario__overlay {
+    padding: 12px;
+  }
+
+  .agendamento-usuario__overlay-card {
+    max-height: 96vh;
+    padding: 18px;
+  }
+}
