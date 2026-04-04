@@ -117,7 +117,12 @@ function Serviços() {
   };
 
   const handleDeleteClick = (id) => {
+    setEditingId(null);
     setDeleteConfirmId(id);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirmId(null);
   };
 
   const handleDeleteConfirm = async () => {
@@ -180,12 +185,7 @@ function Serviços() {
       setServicos([...servicos, response]);
       setMessage({ type: "success", text: "Serviço criado com sucesso!" });
       setIsCreating(false);
-      setNewServiceForm({
-        name: "",
-        description: "",
-        duration_minutes: "",
-        price: ""
-      });
+      setNewServiceForm({ name: "",  description: "",  duration_minutes: "",  price: "" });
       setTimeout(() => window.location.reload());
     } catch (error) {
       setMessage({ type: "error", text: error.message || "Erro ao criar serviço." });
@@ -209,15 +209,15 @@ function Serviços() {
             <div className="servico-card add-service-card">
               {isCreating ? (
                 <form onSubmit={handleCreateSubmit} className="servico-form">
-                  <input type="text"  name="name"  value={newServiceForm.name}  onChange={handleCreateChange}  placeholder="Nome do serviço"  required/>
-                  <textarea  name="description"  value={newServiceForm.description}  onChange={handleCreateChange}  placeholder="Descrição"/>
-                  <input  type="number"  name="duration_minutes"  value={newServiceForm.duration_minutes}  onChange={handleCreateChange}  placeholder="Duração (minutos)"/>
-                  <input  type="number"  name="price"  value={newServiceForm.price}  onChange={handleCreateChange}  placeholder="Preço"  step="0.01"/>
+                  <input type="text" name="name" value={newServiceForm.name} onChange={handleCreateChange} placeholder="Nome do serviço" required />
+                  <textarea name="description" value={newServiceForm.description} onChange={handleCreateChange} placeholder="Descrição" />
+                  <input type="number" name="duration_minutes" value={newServiceForm.duration_minutes} onChange={handleCreateChange} placeholder="Duração (minutos)" />
+                  <input type="number" name="price" value={newServiceForm.price} onChange={handleCreateChange} placeholder="Preço" step="0.01" />
                   <div className="form-buttons">
-                    <button  type="submit"  className="btn-save"  disabled={isSubmitting}>
+                    <button type="submit" className="btn-save" disabled={isSubmitting}>
                       {isSubmitting ? "Criando..." : "Criar Serviço"}
                     </button>
-                    <button  type="button"  className="btn-cancel-edit"  onClick={handleCreateCancel}  disabled={isSubmitting}>
+                    <button type="button" className="btn-cancel-edit" onClick={handleCreateCancel} disabled={isSubmitting}>
                       Cancelar
                     </button>
                   </div>
@@ -234,24 +234,38 @@ function Serviços() {
             servicos.map((servico) => {
               const preco = Number(servico.price);
               const isEditing = editingId === servico.id;
+              const isDeleting = deleteConfirmId === servico.id;
 
               return (
                 <div key={servico.id || `${servico.name}-${servico.price}`} className="servico-card">
                   {isEditing ? (
                     <form onSubmit={handleEditSubmit} className="servico-form">
-                      <input  type="text"  name="name"  value={editForm.name}  onChange={handleEditChange}  placeholder="Nome"  required  />
-                      <textarea  name="description"  value={editForm.description}  onChange={handleEditChange}  placeholder="Descrição"  />
-                      <input  type="number"  name="duration_minutes"  value={editForm.duration_minutes}  onChange={handleEditChange}  placeholder="Duração (minutos)"  />
-                      <input  type="number"  name="price"  value={editForm.price}  onChange={handleEditChange}  placeholder="Preço"  step="0.01"  />
+                      <input type="text" name="name" value={editForm.name} onChange={handleEditChange} placeholder="Nome" required />
+                      <textarea name="description" value={editForm.description} onChange={handleEditChange} placeholder="Descrição" />
+                      <input type="number" name="duration_minutes" value={editForm.duration_minutes} onChange={handleEditChange} placeholder="Duração (minutos)" />
+                      <input type="number" name="price" value={editForm.price} onChange={handleEditChange} placeholder="Preço" step="0.01" />
                       <div className="form-buttons">
-                        <button  type="submit"  className="btn-save"  disabled={isSubmitting}>
+                        <button type="submit" className="btn-save" disabled={isSubmitting}>
                           {isSubmitting ? "Salvando..." : "Salvar"}
                         </button>
-                        <button  type="button"  className="btn-cancel-edit" onClick={handleEditCancel}  disabled={isSubmitting}>
+                        <button type="button" className="btn-cancel-edit" onClick={handleEditCancel} disabled={isSubmitting}>
                           Cancelar
                         </button>
                       </div>
                     </form>
+                  ) : isDeleting ? (
+                    <div className="servico-form">
+                      <h3>Confirmar exclusão</h3>
+                      <p>Tem certeza que deseja deletar este serviço? Esta ação não pode ser desfeita.</p>
+                      <div className="form-buttons">
+                        <button type="button" className="btn-delete" onClick={handleDeleteConfirm} disabled={isSubmitting}>
+                          {isSubmitting ? "Deletando..." : "Deletar"}
+                        </button>
+                        <button type="button" className="btn-cancel-edit" onClick={handleDeleteCancel} disabled={isSubmitting}>
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
                   ) : (
                     <>
                       <h2>{servico.name}</h2>
@@ -267,10 +281,10 @@ function Serviços() {
 
                       {loggedUser?.admin && (
                         <div className="admin-actions">
-                          <button  className="btn-edit"  onClick={() => handleEditClick(servico)}>
+                          <button className="btn-edit" onClick={() => handleEditClick(servico)}>
                             ✏️ Editar
                           </button>
-                          <button  className="btn-delete"  onClick={() => handleDeleteClick(servico.id)}>
+                          <button className="btn-delete" onClick={() => handleDeleteClick(servico.id)}>
                             🗑️ Deletar
                           </button>
                         </div>
@@ -283,23 +297,6 @@ function Serviços() {
           ) : (
             <p className="status-servicos">Nenhum servico encontrado.</p>
           )}
-        </div>
-      )}
-
-      {deleteConfirmId && (
-        <div className="modal-overlay" onClick={() => setDeleteConfirmId(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Confirmar exclusão</h3>
-            <p>Tem certeza que deseja deletar este serviço? Esta ação não pode ser desfeita.</p>
-            <div className="modal-actions">
-              <button  className="btn-confirm"  onClick={handleDeleteConfirm}  disabled={isSubmitting}>
-                {isSubmitting ? "Deletando..." : "Deletar"}
-              </button>
-              <button className="btn-cancel"  onClick={() => setDeleteConfirmId(null)}  disabled={isSubmitting}>
-                Cancelar
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

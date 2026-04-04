@@ -5,6 +5,7 @@ import { getLoggedUser } from "../utils/auth";
 const API_BASE_URL = (process.env.REACT_APP_API_URL || "http://localhost:3001").replace(/\/$/, "");
 const APPOINTMENTS_ENDPOINT = `${API_BASE_URL}/appointments`;
 const SERVICES_ENDPOINT = `${API_BASE_URL}/services`;
+const BARBERS_ENDPOINT = `${API_BASE_URL}/barbers`;
 const TIME_SLOT_START_HOUR = 8;
 const TIME_SLOT_END_HOUR = 20;
 const TIME_SLOT_INTERVAL_MINUTES = 15;
@@ -29,6 +30,7 @@ function Agendamento() {
     const [appointmentForm, setAppointmentForm] = useState({
         user_id: "",
         service_id: "",
+        barber_id: "",
         notes: "",
         created_at: "",
     });
@@ -40,6 +42,9 @@ function Agendamento() {
     const [erroServicos, setErroServicos] = useState("");
     const [selectedDate, setSelectedDate] = useState("");
     const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+    const [barbeiros, setBarbeiros] = useState([]);
+    const [carregandoBarbeiros, setCarregandoBarbeiros] = useState(true);
+    const [erroBarbeiros, setErroBarbeiros] = useState("");
 
     function buildCreatedAt(dateValue, timeValue) {
         if (!dateValue || !timeValue) {
@@ -86,6 +91,25 @@ function Agendamento() {
         }
 
         buscarServicos();
+
+        async function buscarBarbeiros() {
+            try {
+                setCarregandoBarbeiros(true);
+                setErroBarbeiros("");
+                const resposta = await fetch(BARBERS_ENDPOINT, { signal: controller.signal });
+                if (!resposta.ok) throw new Error("Não foi possível carregar os barbeiros.");
+                const dados = await resposta.json();
+                setBarbeiros(Array.isArray(dados) ? dados : []);
+            } catch (error) {
+                if (error.name !== "AbortError") {
+                    setErroBarbeiros("Não foi possível carregar a lista de barbeiros.");
+                }
+            } finally {
+                setCarregandoBarbeiros(false);
+            }
+        }
+
+        buscarBarbeiros();
 
         return () => {
             controller.abort();
@@ -183,7 +207,7 @@ function Agendamento() {
             <form className="form-agendamento" onSubmit={enviarAgendamento}>
                 <label>
                     Servico
-                    <select name="service_id" value={appointmentForm.service_id} onChange={atualizarCampo} disabled={carregandoServicos || servicos.length === 0 || !usuarioAutenticado} required >
+                    <select name="service_id" value={appointmentForm.service_id} onChange={atualizarCampo} disabled={enviando || carregandoServicos || servicos.length === 0 || carregandoBarbeiros || barbeiros.length === 0 || !usuarioAutenticado} required >
                         <option value="">
                             {carregandoServicos ? "Carregando servicos..." : "Selecione"}
                         </option>
@@ -196,6 +220,27 @@ function Agendamento() {
                 </label>
 
                 {erroServicos && <p className="status-servicos-agendamento erro">{erroServicos}</p>}
+
+                <label>
+                    Barbeiro
+                    <select
+                        name="barber_id"
+                        value={appointmentForm.barber_id}
+                        onChange={atualizarCampo}
+                        disabled={carregandoBarbeiros || barbeiros.length === 0 || !usuarioAutenticado}
+                        required
+                    >
+                        <option value="">
+                            {carregandoBarbeiros ? "Carregando barbeiros..." : "Selecione"}
+                        </option>
+                        {barbeiros.map((barbeiro) => (
+                            <option key={barbeiro.id} value={String(barbeiro.id)}>
+                                {barbeiro.name}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+                {erroBarbeiros && <p className="status-servicos-agendamento erro">{erroBarbeiros}</p>}
 
 
 
