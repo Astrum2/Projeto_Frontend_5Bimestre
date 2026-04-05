@@ -1,42 +1,8 @@
-import { useEffect, useState } from "react";
 import "../estilo/Sobre.css";
-import { requestJson } from "../utils/api";
+import { useSobrePage } from "../hooks/useSobrePage";
 
 function Sobre() {
-    const [barbeiros, setBarbeiros] = useState([]);
-    const [carregando, setCarregando] = useState(true);
-    const [erro, setErro] = useState("");
-
-    useEffect(() => {
-        let active = true;
-
-        async function buscarBarbeiros() {
-            try {
-                setCarregando(true);
-                setErro("");
-
-                const dados = await requestJson("/barbers");
-
-                if (!active) return;
-                const barbeirosAtivos = Array.isArray(dados)
-                    ? dados.filter((barbeiro) => Number(barbeiro.active ?? barbeiro.ativo) !== 0)
-                    : [];
-
-                setBarbeiros(barbeirosAtivos);
-            } catch (error) {
-                if (!active) return;
-                setErro(error.message || "Nao foi possivel carregar os barbeiros.");
-            } finally {
-                if (active) setCarregando(false);
-            }
-        }
-
-        buscarBarbeiros();
-
-        return () => {
-            active = false;
-        };
-    }, []);
+    const { barbeiros, carregando, erro } = useSobrePage();
 
     return (
         <main className="sobre">

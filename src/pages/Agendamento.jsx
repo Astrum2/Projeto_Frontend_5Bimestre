@@ -1,179 +1,26 @@
-import { useEffect, useState } from "react";
 import "../estilo/Agendamento.css";
-import { getLoggedUser } from "../utils/auth";
 import { TIME_SLOTS } from "../utils/appointments";
-
-const API_BASE_URL = (process.env.REACT_APP_API_URL || "http://localhost:3001").replace(/\/$/, "");
-const APPOINTMENTS_ENDPOINT = `${API_BASE_URL}/appointments`;
-const SERVICES_ENDPOINT = `${API_BASE_URL}/services`;
-const BARBERS_ENDPOINT = `${API_BASE_URL}/barbers`;
+import { useAgendamentoPage } from "../hooks/useAgendamentoPage";
 
 function Agendamento() {
-    const [appointmentForm, setAppointmentForm] = useState({
-        user_id: "",
-        service_id: "",
-        barber_id: "",
-        notes: "",
-        created_at: "",
-    });
-    const [enviando, setEnviando] = useState(false);
-    const [mensagem, setMensagem] = useState("");
-    const [erro, setErro] = useState(false);
-    const [servicos, setServicos] = useState([]);
-    const [carregandoServicos, setCarregandoServicos] = useState(true);
-    const [erroServicos, setErroServicos] = useState("");
-    const [selectedDate, setSelectedDate] = useState("");
-    const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
-    const [barbeiros, setBarbeiros] = useState([]);
-    const [carregandoBarbeiros, setCarregandoBarbeiros] = useState(true);
-    const [erroBarbeiros, setErroBarbeiros] = useState("");
-
-    function buildCreatedAt(dateValue, timeValue) {
-        if (!dateValue || !timeValue) {
-            return "";
-        }
-
-        return `${dateValue}T${timeValue}`;
-    }
-
-    useEffect(() => {
-        const controller = new AbortController();
-        const authUser = getLoggedUser();
-
-        if (authUser?.id) {
-            setAppointmentForm((estadoAnterior) => ({
-                ...estadoAnterior,
-                user_id: String(authUser.id),
-            }));
-        }
-
-        async function buscarServicos() {
-            try {
-                setCarregandoServicos(true);
-                setErroServicos("");
-
-                const resposta = await fetch(SERVICES_ENDPOINT, {
-                    signal: controller.signal,
-                });
-
-                if (!resposta.ok) {
-                    throw new Error("Nao foi possivel carregar os servicos.");
-                }
-
-                const dados = await resposta.json();
-                const lista = Array.isArray(dados) ? dados : [];
-                setServicos(lista);
-            } catch (error) {
-                if (error.name !== "AbortError") {
-                    setErroServicos("Nao foi possivel carregar a lista de servicos.");
-                }
-            } finally {
-                setCarregandoServicos(false);
-            }
-        }
-
-        buscarServicos();
-
-        async function buscarBarbeiros() {
-            try {
-                setCarregandoBarbeiros(true);
-                setErroBarbeiros("");
-                const resposta = await fetch(BARBERS_ENDPOINT, { signal: controller.signal });
-                if (!resposta.ok) throw new Error("Não foi possível carregar os barbeiros.");
-                const dados = await resposta.json();
-                setBarbeiros(Array.isArray(dados) ? dados : []);
-            } catch (error) {
-                if (error.name !== "AbortError") {
-                    setErroBarbeiros("Não foi possível carregar a lista de barbeiros.");
-                }
-            } finally {
-                setCarregandoBarbeiros(false);
-            }
-        }
-
-        buscarBarbeiros();
-
-        return () => {
-            controller.abort();
-        };
-    }, []);
-
-    function atualizarCampo(evento) {
-        const { name, value } = evento.target;
-        setAppointmentForm((estadoAnterior) => ({
-            ...estadoAnterior,
-            [name]: value,
-        }));
-    }
-
-    function atualizarData(evento) {
-        const nextDate = evento.target.value;
-        setSelectedDate(nextDate);
-        setAppointmentForm((estadoAnterior) => ({
-            ...estadoAnterior,
-            created_at: buildCreatedAt(nextDate, selectedTimeSlot),
-        }));
-    }
-
-    function atualizarHorario(evento) {
-        const nextTimeSlot = evento.target.value;
-        setSelectedTimeSlot(nextTimeSlot);
-        setAppointmentForm((estadoAnterior) => ({
-            ...estadoAnterior,
-            created_at: buildCreatedAt(selectedDate, nextTimeSlot),
-        }));
-    }
-
-    async function enviarAgendamento(evento) {
-        evento.preventDefault();
-        const authUser = getLoggedUser();
-
-        if (!authUser?.token) {
-            setErro(true);
-            setMensagem("Faca login para realizar o agendamento.");
-            return;
-        }
-
-        try {
-            setEnviando(true);
-            setMensagem("");
-            setErro(false);
-
-            const resposta = await fetch(APPOINTMENTS_ENDPOINT, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${authUser.token}`,
-                },
-                body: JSON.stringify({
-                    ...appointmentForm,
-                    user_id: Number(appointmentForm.user_id),
-                    service_id: Number(appointmentForm.service_id),
-                    status: "scheduled",
-                    notes: appointmentForm.notes || null,
-                }),
-            });
-
-            if (!resposta.ok) {
-                throw new Error("Nao foi possivel criar o agendamento.");
-            }
-
-            setMensagem("Agendamento enviado com sucesso!");
-            setAppointmentForm((estadoAnterior) => ({
-                ...estadoAnterior,
-                service_id: "",
-                notes: "",
-                created_at: "",
-            }));
-            setSelectedDate("");
-            setSelectedTimeSlot("");
-        } catch (error) {
-            setErro(true);
-            setMensagem("Falha ao enviar agendamento. Verifique o backend e tente novamente.");
-        } finally {
-            setEnviando(false);
-        }
-    }
+    const {
+        appointmentForm,
+        enviando,
+        mensagem,
+        erro,
+        servicos,
+        carregandoServicos,
+        erroServicos,
+        selectedDate,
+        selectedTimeSlot,
+        barbeiros,
+        carregandoBarbeiros,
+        erroBarbeiros,
+        atualizarCampo,
+        atualizarData,
+        atualizarHorario,
+        enviarAgendamento,
+    } = useAgendamentoPage();
 
     const usuarioAutenticado = Boolean(appointmentForm.user_id);
 

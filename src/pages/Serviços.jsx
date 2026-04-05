@@ -1,198 +1,32 @@
-import { useEffect, useState } from "react";
 import "../estilo/Serviços.css";
-import { getLoggedUser, authChangedEvent } from "../utils/auth";
-import { requestJson } from "../utils/api";
 import MessageBanner from "../componentes/MessageBanner";
-
-const API_BASE_URL = (process.env.REACT_APP_API_URL || "http://localhost:3001").replace(/\/$/, "");
+import { useServicosPage } from "../hooks/useServicosPage";
 
 function Serviços() {
-  const [servicos, setServicos] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState("");
-  const [loggedUser, setLoggedUser] = useState(getLoggedUser());
-  const [message, setMessage] = useState(null);
-  const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  const [isCreating, setIsCreating] = useState(false);
-  const [newServiceForm, setNewServiceForm] = useState({
-    name: "",
-    description: "",
-    duration_minutes: "",
-    price: ""
-  });
-
-  useEffect(() => {
-    const syncAuthState = () => setLoggedUser(getLoggedUser());
-    window.addEventListener(authChangedEvent, syncAuthState);
-    return () => window.removeEventListener(authChangedEvent, syncAuthState);
-  }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function buscarServicos() {
-      try {
-        setCarregando(true);
-        setErro("");
-
-        const resposta = await fetch(`${API_BASE_URL}/services`, {
-          signal: controller.signal,
-        });
-
-        if (!resposta.ok) {
-          throw new Error("Nao foi possivel carregar os servicos.");
-        }
-
-        const dados = await resposta.json();
-        setServicos(Array.isArray(dados) ? dados : []);
-      } catch (error) {
-        if (error.name !== "AbortError") {
-          setErro("Falha ao conectar com o backend. Confira a URL e o CORS da API.");
-        }
-      } finally {
-        setCarregando(false);
-      }
-    }
-
-    buscarServicos();
-
-    return () => {
-      controller.abort();
-    };
-  }, []);
-
-  const handleEditClick = (servico) => {
-    setEditingId(servico.id);
-    setEditForm({
-      name: servico.name,
-      description: servico.description || servico.descrption || "",
-      duration_minutes: servico.duration_minutes || "",
-      price: servico.price || ""
-    });
-  };
-
-  const handleEditCancel = () => {
-    setEditingId(null);
-    setEditForm({});
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setMessage(null);
-
-    try {
-      const token = loggedUser?.token;
-      await requestJson(`/services/${editingId}`, {
-        method: "PUT",
-        body: JSON.stringify(editForm),
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
-
-      setServicos(servicos.map(s =>
-        s.id === editingId
-          ? { ...s, ...editForm }
-          : s
-      ));
-
-      setMessage({ type: "success", text: "Serviço atualizado com sucesso!" });
-      setEditingId(null);
-      setEditForm({});
-    } catch (error) {
-      setMessage({ type: "error", text: error.message || "Erro ao atualizar serviço." });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDeleteClick = (id) => {
-    setEditingId(null);
-    setDeleteConfirmId(id);
-  };
-
-  const handleDeleteCancel = () => {
-    setDeleteConfirmId(null);
-  };
-
-  const handleDeleteConfirm = async () => {
-    const idToDelete = deleteConfirmId;
-    setDeleteConfirmId(null);
-    setIsSubmitting(true);
-    setMessage(null);
-
-    try {
-      const token = loggedUser?.token;
-      await requestJson(`/services/${idToDelete}`, {
-        method: "DELETE",
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
-
-      setServicos(servicos.filter(s => s.id !== idToDelete));
-      setMessage({ type: "success", text: "Serviço deletado com sucesso!" });
-    } catch (error) {
-      setMessage({ type: "error", text: error.message || "Erro ao deletar serviço." });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCreateClick = () => {
-    setIsCreating(true);
-  };
-
-  const handleCreateCancel = () => {
-    setIsCreating(false);
-    setNewServiceForm({
-      name: "",
-      description: "",
-      duration_minutes: "",
-      price: ""
-    });
-  };
-
-  const handleCreateChange = (e) => {
-    const { name, value } = e.target;
-    setNewServiceForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleCreateSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setMessage(null);
-
-    try {
-      const token = loggedUser?.token;
-      const response = await requestJson("/services", {
-        method: "POST",
-        body: JSON.stringify(newServiceForm),
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
-
-      setServicos([...servicos, response]);
-      setMessage({ type: "success", text: "Serviço criado com sucesso!" });
-      setIsCreating(false);
-      setNewServiceForm({ name: "",  description: "",  duration_minutes: "",  price: "" });
-      setTimeout(() => window.location.reload());
-    } catch (error) {
-      setMessage({ type: "error", text: error.message || "Erro ao criar serviço." });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const {
+    servicos,
+    carregando,
+    erro,
+    loggedUser,
+    message,
+    editingId,
+    editForm,
+    isSubmitting,
+    deleteConfirmId,
+    isCreating,
+    newServiceForm,
+    handleEditClick,
+    handleEditCancel,
+    handleEditChange,
+    handleEditSubmit,
+    handleDeleteClick,
+    handleDeleteCancel,
+    handleDeleteConfirm,
+    handleCreateClick,
+    handleCreateCancel,
+    handleCreateChange,
+    handleCreateSubmit,
+  } = useServicosPage();
 
   return (
     <div className="servicos-container">

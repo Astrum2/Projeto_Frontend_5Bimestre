@@ -19,7 +19,9 @@ export function buildTimeSlots() {
 export const TIME_SLOTS = buildTimeSlots();
 
 export function formatAppointmentDate(appointment) {
-  const rawValue = appointment?.created_at || appointment?.appointment_date || appointment?.date;
+  const rawValue = appointment?.date && appointment?.time
+    ? `${appointment.date}T${appointment.time}`
+    : appointment?.created_at || appointment?.appointment_date || appointment?.date;
   if (!rawValue) {
     return 'Data não informada';
   }
@@ -40,6 +42,10 @@ export function toDateInputValue(value) {
     return '';
   }
 
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
     return '';
@@ -57,8 +63,8 @@ export function toTimeInputValue(value) {
     return '';
   }
 
-  if (typeof value === 'string' && /^\d{2}:\d{2}$/.test(value)) {
-    return value;
+  if (typeof value === 'string' && /^\d{2}:\d{2}(:\d{2})?$/.test(value)) {
+    return value.slice(0, 5);
   }
 
   const date = new Date(value);

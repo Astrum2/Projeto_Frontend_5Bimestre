@@ -1,47 +1,9 @@
-import { useEffect, useState } from "react";
 import ProdutosCard from "../componentes/ProdutosCard";
 import "../estilo/ProdutosCard.css";
-
-const API_BASE_URL = (process.env.REACT_APP_API_URL || "http://localhost:3001").replace(/\/$/, "");
+import { useProdutosPage } from "../hooks/useProdutosPage";
 
 function Produtos() {
-    const [produtos, setProdutos] = useState([]);
-    const [carregando, setCarregando] = useState(true);
-    const [erro, setErro] = useState("");
-
-    useEffect(() => {
-        const controller = new AbortController();
-
-        async function buscarProdutos() {
-            try {
-                setCarregando(true);
-                setErro("");
-
-                const resposta = await fetch(`${API_BASE_URL}/api/produtos`, {
-                    signal: controller.signal,
-                });
-
-                if (!resposta.ok) {
-                    throw new Error("Nao foi possivel carregar os produtos.");
-                }
-
-                const dados = await resposta.json();
-                setProdutos(Array.isArray(dados) ? dados : []);
-            } catch (error) {
-                if (error.name !== "AbortError") {
-                    setErro("Falha ao conectar com o backend. Confira a URL e o CORS da API.");
-                }
-            } finally {
-                setCarregando(false);
-            }
-        }
-
-        buscarProdutos();
-
-        return () => {
-            controller.abort();
-        };
-    }, []);
+    const { produtos, carregando, erro } = useProdutosPage();
 
     return (
         <main className="pagina-produtos">

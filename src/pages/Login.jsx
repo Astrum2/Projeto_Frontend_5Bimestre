@@ -1,83 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import '../estilo/Login.css';
-import { Link, useNavigate } from 'react-router-dom';
-import { setLoggedUser } from '../utils/auth';
-import { requestJson } from '../utils/api';
+import { Link } from 'react-router-dom';
 import MessageBanner from '../componentes/MessageBanner';
+import { useLoginPage } from '../hooks/useLoginPage';
 
 function Login() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    senha: ''
-  });
-
-  const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const redirectTimeoutRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (redirectTimeoutRef.current) {
-        clearTimeout(redirectTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newErrors = {};
-    setMessage(null);
-
-    if (!formData.email) newErrors.email = 'Email é obrigatório';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email inválido';
-    if (!formData.senha) newErrors.senha = 'Senha é obrigatória';
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length > 0) {
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-
-      const loginResponse = await requestJson('/login', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.senha
-        })
-      });
-
-      setLoggedUser({
-        nome: formData.email.split('@')[0],
-        email: formData.email,
-        token: loginResponse?.token
-      });
-
-      setMessage({ type: 'success', text: 'Login realizado com sucesso!' });
-      redirectTimeoutRef.current = window.setTimeout(() => {
-        navigate('/');
-      }, 1200);
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        text: error.message || 'Nao foi possivel realizar login.'
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const {
+    formData,
+    errors,
+    message,
+    isSubmitting,
+    handleChange,
+    handleSubmit,
+  } = useLoginPage();
 
   return (
     <div className="login-container">
