@@ -84,13 +84,25 @@ function Header(){
                             >
                                 Meu Agendamentos
                             </Link>
+                            {loggedUser?.admin && (
+                                <Link
+                                    className="profile-link"
+                                    to="/AgendaBarbeiro"
+                                    onClick={() => {
+                                        setIsUserMenuOpen(false);
+                                        setIsOpen(false);
+                                    }}
+                                >
+                                    Agenda Barbeiro
+                                </Link>
+                            )}
                             <button className="logout-button" type="button" onClick={handleLogout}>Logout</button>
                         </div>
                     )}
                 </div>
             ) : (
                 <div className="buttons">
-                    <Link to="/Agendamento" className="agendamento_button" onClick={() => setIsOpen(false)}>Agendamento</Link>
+                    <Link to="/Cadastro" className="agendamento_button" onClick={() => setIsOpen(false)}>Cadastro</Link>
                     <Link to="/Login" className="login_button" onClick={() => setIsOpen(false)}>Logar</Link>
                 </div>
             )}

@@ -39,3 +39,21 @@ export async function createAppointment(payload, token) {
     body: JSON.stringify(payload),
   });
 }
+
+export async function fetchBarberSchedules(token, signal) {
+  const data = await requestJson('/barber-schedules', {
+    signal,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return normalizeList(data);
+}
+
+export async function fetchAppointmentDetails(appointmentId, token) {
+  return requestJson(`/appointments/${appointmentId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
