@@ -108,6 +108,7 @@
   padding: 10px;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
   z-index: 1200;
+  overflow: hidden;
 }
 
 .user-name {
@@ -115,11 +116,13 @@
   color: #111111;
   font-size: 14px;
   font-weight: 600;
+  text-align: center;
 }
 
 .profile-link {
   display: block;
-  width: 90%;
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 8px;
   border-radius: 6px;
   padding: 10px;
@@ -127,16 +130,17 @@
   text-decoration: none;
   font-size: 14px;
   font-weight: 600;
-  background-color: black;
-  color: #093956;
+  background-color: #1B1B1B;
+  color: #ffffff;
 }
 
 .profile-link:hover {
-  background-color: red;
+  background-color: #2E2E2E;
 }
 
 .logout-button {
   width: 100%;
+  box-sizing: border-box;
   border: none;
   border-radius: 6px;
   padding: 10px;
@@ -153,11 +157,16 @@
 .hamburger {
   display: none;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 5;
+  padding: 0;
   margin: 0;
+  flex: 0 0 auto;
 }
 
 .hamburger span {
@@ -184,6 +193,7 @@
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
+    z-index: 1300;
   }
 
   .menu_header {

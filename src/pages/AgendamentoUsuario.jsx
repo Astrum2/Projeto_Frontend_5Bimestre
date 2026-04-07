@@ -26,6 +26,16 @@ function AgendamentoUsuario() {
         handleDelete,
     } = useAgendamentoUsuarioPage();
 
+    const getStatusLabel = (status) => {
+        const labels = {
+            scheduled: 'Agendamento',
+            completed: 'Concluído',
+            cancelled: 'Cancelado',
+        };
+
+        return labels[status] || status;
+    };
+
     if (isLoading) {
         return (
             <main className="agendamento-usuario">
@@ -58,7 +68,7 @@ function AgendamentoUsuario() {
                                 <div className="agendamento-usuario__card-top">
                                     <strong>{serviceNameById[String(appointment.service_id)] || `Serviço #${appointment.service_id}`}</strong>
                                     <span className={`agendamento-usuario__badge agendamento-usuario__badge--${appointment.status || 'scheduled'}`}>
-                                        {appointment.status || 'scheduled'}
+                                        {getStatusLabel(appointment.status || 'scheduled')}
                                     </span>
                                 </div>
 

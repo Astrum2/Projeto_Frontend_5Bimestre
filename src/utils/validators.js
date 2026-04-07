@@ -23,6 +23,35 @@ export function formatCPF(cpf) {
   return formatted;
 }
 
+export function normalizeTelefone(value) {
+  return value?.replace(/\D/g, '') ?? '';
+}
+
+export function formatTelefone(telefone) {
+  const digits = normalizeTelefone(telefone).slice(0, 11);
+
+  if (!digits) {
+    return '';
+  }
+
+  const ddd = digits.slice(0, 2);
+  const number = digits.slice(2);
+
+  if (digits.length <= 2) {
+    return `(${ddd}`;
+  }
+
+  if (digits.length <= 6) {
+    return `(${ddd}) ${number}`;
+  }
+
+  if (digits.length <= 10) {
+    return `(${ddd}) ${number.slice(0, 4)}-${number.slice(4)}`;
+  }
+
+  return `(${ddd}) ${number.slice(0, 5)}-${number.slice(5)}`;
+}
+
 export function validarCPF(cpf) {
   const normalizedCpf = normalizeCPF(cpf);
 

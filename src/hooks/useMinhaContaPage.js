@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getLoggedUser, setLoggedUser } from '../utils/auth';
-import { formatCPF, isValidEmail, validarCPF, validarSenha } from '../utils/validators';
+import { formatCPF, formatTelefone, isValidEmail, normalizeTelefone, validarCPF, validarSenha } from '../utils/validators';
 import { fetchUserProfile, updateUserProfile, uploadUserProfileImage } from '../services/profileApi';
 
 function buildInitialFormData(isAdmin) {
@@ -50,7 +50,7 @@ export function useMinhaContaPage() {
         };
 
         if (isAdmin) {
-          newFormData.telefone = profile?.phone || '';
+          newFormData.telefone = formatTelefone(profile?.phone || authUser.telefone || '');
           newFormData.imagem = null;
           newFormData.imagemNome = profile?.photo || '';
           newFormData.ativo = profile?.active !== undefined ? profile?.active : true;
@@ -93,6 +93,8 @@ export function useMinhaContaPage() {
       return;
     } else if (name === 'cpf') {
       newValue = formatCPF(value);
+    } else if (name === 'telefone') {
+      newValue = formatTelefone(value);
     }
 
     setFormData((prev) => ({
@@ -159,7 +161,7 @@ export function useMinhaContaPage() {
       };
 
       if (isAdmin) {
-        payload.phone = formData.telefone.trim();
+        payload.phone = normalizeTelefone(formData.telefone);
         if (photoName) {
           payload.photo = photoName;
         }
@@ -180,7 +182,7 @@ export function useMinhaContaPage() {
         email: updatedProfile?.email || lockedEmail,
         cpf: updatedProfile?.cpf || formData.cpf,
         ...(isAdmin && {
-          telefone: updatedProfile?.phone || formData.telefone,
+          telefone: formatTelefone(updatedProfile?.phone || formData.telefone),
           imagem: null,
           imagemNome: updatedProfile?.photo || formData.imagemNome,
           ativo: updatedProfile?.active !== undefined ? updatedProfile.active : formData.ativo,

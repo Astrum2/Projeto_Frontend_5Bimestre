@@ -12,19 +12,6 @@ function Home() {
             Ambiente moderno, profissionais experientes e agendamento rápido. Venha
             conquistar o visual que combina com você.
           </p>
-
-          <div className="hero-actions">
-            <Link to="/Agendamento" className="btn primary">
-              Agendar agora
-            </Link>
-            <Link to="/Serviços" className="btn secondary">
-              Conhecer serviços
-            </Link>
-          </div>
-        </div>
-
-        <div className="hero-visual" aria-hidden="true">
-          <div className="hero-shape" />
         </div>
       </section>
 
@@ -63,7 +50,7 @@ function Home() {
           <h2>Pronto para transformar seu visual?</h2>
           <p>Escolha o serviço ideal e agende agora com a gente.</p>
           <Link to="/Agendamento" className="btn primary">
-            Agendar agora
+            <strong>Agendar agora</strong>
           </Link>
         </div>
       </section>

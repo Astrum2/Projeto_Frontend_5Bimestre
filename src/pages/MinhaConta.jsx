@@ -42,7 +42,7 @@ function MinhaConta() {
         {isAdmin && (
           <>
             <label htmlFor="telefone">Telefone</label>
-            <input type="tel"  id="telefone"  name="telefone"  value={formData.telefone}  onChange={handleChange}  placeholder="(00) 00000-0000" />
+            <input type="tel"  id="telefone"  name="telefone"  value={formData.telefone}  onChange={handleChange}  placeholder="(00) 00000-0000" inputMode="numeric" maxLength={15} />
             {errors.telefone && <span className="error">{errors.telefone}</span>}
 
             <label htmlFor="imagem">Imagem</label>

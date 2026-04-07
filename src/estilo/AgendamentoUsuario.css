@@ -63,7 +63,13 @@
 .agendamento-usuario__ghost-button {
   background: #eef4f7;
   color: #093956;
-  padding: 10px 14px;
+  padding: 8px 12px;
+  width: auto;
+  min-width: 0;
+}
+
+.agendamento-usuario__ghost-button:hover {
+  background: #f6fafc;
 }
 
 .agendamento-usuario__form {
@@ -214,9 +220,12 @@
   transform: none;
 }
 
+.agendamento-usuario + .footer {
+  margin-top: 0;
+}
+
 @media (max-width: 768px) {
-  .agendamento-usuario__header,
-  .agendamento-usuario__panel-header {
+  .agendamento-usuario__header {
     flex-direction: column;
   }
 

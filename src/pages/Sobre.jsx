@@ -7,8 +7,14 @@ function Sobre() {
     return (
         <main className="sobre">
             <section className="sobre-header">
+                <h2 className="sobre-intro-titulo">Nossa Didática</h2>
+                <p className="sobre-intro-texto">
+                    Nossa equipe trabalha com uma didática simples e personalizada: primeiro entendemos seu estilo,
+                    depois explicamos as opções de corte e finalização para você participar da escolha.
+                    Assim, cada atendimento fica mais claro, confortável e com resultado alinhado ao que você quer.
+                </p>
                 <h1>Nossos Barbeiros</h1>
-                <p>Conheça a equipe disponível no momento.</p>
+                <p className="sobre-subtitulo">Conheça a equipe disponível no momento.</p>
             </section>
 
             {carregando && <p className="status">Carregando barbeiros...</p>}
