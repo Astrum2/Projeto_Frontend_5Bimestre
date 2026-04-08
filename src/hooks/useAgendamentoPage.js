@@ -1,6 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getLoggedUser } from '../utils/auth';
-import { createAppointment, fetchBarbers, fetchServices } from '../services/appointmentsApi';
+import {
+  createAppointment,
+  fetchAppointmentsByBarberAndDate,
+  fetchBarbers,
+  fetchServices,
+} from '../services/appointmentsApi';
+import { toDateInputValue, toTimeInputValue } from '../utils/appointments';
 
 const INITIAL_APPOINTMENT_FORM = {
   user_id: '',
@@ -8,6 +14,58 @@ const INITIAL_APPOINTMENT_FORM = {
   barber_id: '',
   notes: '',
 };
+
+function toMinutes(timeValue) {
+  if (!timeValue) {
+    return null;
+  }
+
+  const [hours, minutes] = String(timeValue).split(':').map(Number);
+
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+    return null;
+  }
+
+  return (hours * 60) + minutes;
+}
+
+function toTimeLabel(totalMinutes) {
+  const safeMinutes = Math.max(0, Number(totalMinutes) || 0);
+  const hh = String(Math.floor(safeMinutes / 60)).padStart(2, '0');
+  const mm = String(safeMinutes % 60).padStart(2, '0');
+  return `${hh}:${mm}`;
+}
+
+function isCancelledStatus(status) {
+  const normalized = String(status || '').toLowerCase();
+  return normalized === 'cancelled' || normalized === 'canceled';
+}
+
+function resolveAppointmentDurationMinutes(appointment, serviceDurationById) {
+  const directDuration = Number(
+    appointment?.duration_minutes ??
+      appointment?.service_duration_minutes ??
+      appointment?.service?.duration_minutes ??
+      appointment?.duration
+  );
+
+  if (Number.isFinite(directDuration) && directDuration > 0) {
+    return directDuration;
+  }
+
+  const serviceId = appointment?.service_id ?? appointment?.serviceId ?? appointment?.service?.id;
+
+  if (!serviceId) {
+    return null;
+  }
+
+  return serviceDurationById[String(serviceId)] || null;
+}
+
+function isSameBarber(appointment, barberId) {
+  const candidateBarberId = appointment?.barber_id ?? appointment?.barberId ?? appointment?.barber?.id;
+  return Number(candidateBarberId) === Number(barberId);
+}
 
 export function useAgendamentoPage() {
   const [appointmentForm, setAppointmentForm] = useState(INITIAL_APPOINTMENT_FORM);
@@ -22,6 +80,18 @@ export function useAgendamentoPage() {
   const [barbeiros, setBarbeiros] = useState([]);
   const [carregandoBarbeiros, setCarregandoBarbeiros] = useState(true);
   const [erroBarbeiros, setErroBarbeiros] = useState('');
+
+  const serviceDurationById = useMemo(() => {
+    return servicos.reduce((accumulator, service) => {
+      const duration = Number(service.duration_minutes ?? service.duration);
+
+      if (Number.isFinite(duration) && duration > 0) {
+        accumulator[String(service.id)] = duration;
+      }
+
+      return accumulator;
+    }, {});
+  }, [servicos]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -106,6 +176,86 @@ export function useAgendamentoPage() {
       setEnviando(true);
       setMensagem('');
       setErro(false);
+
+      const selectedServiceDuration = serviceDurationById[String(appointmentForm.service_id)];
+
+      if (!Number.isFinite(selectedServiceDuration) || selectedServiceDuration <= 0) {
+        setErro(true);
+        setMensagem('Nao foi possivel identificar a duracao do servico selecionado.');
+        return;
+      }
+
+      let existingAppointments = [];
+
+      try {
+        existingAppointments = await fetchAppointmentsByBarberAndDate(
+          Number(appointmentForm.barber_id),
+          selectedDate,
+          authUser.token
+        );
+      } catch (_validationError) {
+        setErro(true);
+        setMensagem('Nao foi possivel validar a disponibilidade do horario. Tente novamente.');
+        return;
+      }
+
+      const selectedStart = toMinutes(selectedTimeSlot);
+      const selectedEnd = selectedStart + selectedServiceDuration;
+
+      const conflictingAppointment = existingAppointments.find((appointment) => {
+        if (isCancelledStatus(appointment?.status)) {
+          return false;
+        }
+
+        if (!isSameBarber(appointment, appointmentForm.barber_id)) {
+          return false;
+        }
+
+        const appointmentDate = toDateInputValue(
+          appointment?.date || appointment?.appointment_date || appointment?.created_at
+        );
+
+        if (appointmentDate !== selectedDate) {
+          return false;
+        }
+
+        const appointmentTime = toTimeInputValue(
+          appointment?.time || appointment?.appointment_time_slot || appointment?.time_slot || appointment?.created_at
+        );
+        const appointmentStart = toMinutes(appointmentTime);
+
+        if (!Number.isFinite(appointmentStart)) {
+          return false;
+        }
+
+        const appointmentDuration = resolveAppointmentDurationMinutes(appointment, serviceDurationById);
+
+        if (!Number.isFinite(appointmentDuration) || appointmentDuration <= 0) {
+          return false;
+        }
+
+        const appointmentEnd = appointmentStart + appointmentDuration;
+        return selectedStart < appointmentEnd && appointmentStart < selectedEnd;
+      });
+
+      if (conflictingAppointment) {
+        const conflictStart = toMinutes(
+          toTimeInputValue(
+            conflictingAppointment?.time ||
+              conflictingAppointment?.appointment_time_slot ||
+              conflictingAppointment?.time_slot ||
+              conflictingAppointment?.created_at
+          )
+        );
+        const conflictDuration = resolveAppointmentDurationMinutes(conflictingAppointment, serviceDurationById);
+        const conflictEnd = conflictStart + conflictDuration;
+
+        setErro(true);
+        setMensagem(
+          `Horario indisponivel. Este barbeiro ja possui agendamento das ${toTimeLabel(conflictStart)} as ${toTimeLabel(conflictEnd)} nessa data.`
+        );
+        return;
+      }
 
       await createAppointment(
         {

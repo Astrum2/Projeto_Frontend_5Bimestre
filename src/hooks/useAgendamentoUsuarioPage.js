@@ -16,6 +16,16 @@ const INITIAL_FORM_DATA = {
   status: 'scheduled',
 };
 
+function isAppointmentFromUser(appointment, userId) {
+  const normalizedUserId = Number(userId);
+
+  return [
+    appointment?.user_id,
+    appointment?.userId,
+    appointment?.user?.id,
+  ].some((candidateId) => Number(candidateId) === normalizedUserId);
+}
+
 export function useAgendamentoUsuarioPage() {
   const navigate = useNavigate();
   const authUser = getLoggedUser();
@@ -73,7 +83,11 @@ export function useAgendamentoUsuarioPage() {
         loadReferenceData(),
       ]);
 
-      setAppointments(appointmentsResult);
+      const filteredAppointments = appointmentsResult.filter((appointment) =>
+        isAppointmentFromUser(appointment, authUser.id)
+      );
+
+      setAppointments(filteredAppointments);
     } catch (error) {
       setMessage({
         type: 'error',
