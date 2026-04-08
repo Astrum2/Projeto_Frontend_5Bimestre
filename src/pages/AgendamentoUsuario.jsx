@@ -63,8 +63,11 @@ function AgendamentoUsuario() {
                     <p className="agendamento-usuario__empty">Nenhum agendamento encontrado para este usuário.</p>
                 ) : (
                     <div className="agendamento-usuario__cards">
-                        {appointments.map((appointment) => (
-                            <article key={appointment.id} className="agendamento-usuario__card">
+                        {appointments.map((appointment) => {
+                            const currentAppointmentId = appointment.id ?? appointment.appointment_id;
+
+                            return (
+                            <article key={currentAppointmentId} className="agendamento-usuario__card">
                                 <div className="agendamento-usuario__card-top">
                                     <strong>{serviceNameById[String(appointment.service_id)] || `Serviço #${appointment.service_id}`}</strong>
                                     <span className={`agendamento-usuario__badge agendamento-usuario__badge--${appointment.status || 'scheduled'}`}>
@@ -83,20 +86,21 @@ function AgendamentoUsuario() {
                                 </p>
 
                                 <div className="agendamento-usuario__card-actions">
-                                    <button type="button" onClick={() => handleEdit(appointment)}>
+                                    <button type="button" onClick={() => handleEdit({ ...appointment, id: currentAppointmentId })}>
                                         Editar
                                     </button>
                                     <button
                                         type="button"
                                         className="agendamento-usuario__danger-button"
-                                        onClick={() => handleDelete(appointment.id)}
+                                        onClick={() => handleDelete(currentAppointmentId)}
                                         disabled={isSubmitting}
                                     >
                                         Excluir
                                     </button>
                                 </div>
                             </article>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </section>

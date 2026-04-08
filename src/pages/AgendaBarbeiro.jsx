@@ -48,7 +48,6 @@ export default function AgendaBarbeiro() {
                 }}
               >
                 <div className="schedule-header">
-                  <h3>Barbeiro #{group.barber_id}</h3>
                   <span
                     className="status-badge"
                     style={{ backgroundColor: getStatusColor(group.status) }}
