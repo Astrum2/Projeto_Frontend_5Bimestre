@@ -37,7 +37,7 @@ export default function AgendaBarbeiro() {
           {scheduleList.map((group) => {
             const firstSlot = group.slots[0];
             const lastSlot = group.slots[group.slots.length - 1];
-            const duration = group.slots[0]?.duration_minutes || group.slots.length * 15;
+            const duration = group.serviceDuration;
 
             return (
               <div
@@ -70,7 +70,7 @@ export default function AgendaBarbeiro() {
                   </div>
                   <div className="info-item">
                     <strong>Duração:</strong>
-                    <span>{duration} min</span>
+                    <span>{duration ? `${duration} min` : 'Nao informado'}</span>
                   </div>
                   <div className="info-item">
                     <strong>Serviço:</strong>

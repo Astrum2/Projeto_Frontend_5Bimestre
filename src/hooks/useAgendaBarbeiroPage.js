@@ -27,6 +27,39 @@ function resolveServiceName(appointment, serviceNameById) {
   return 'Servico nao informado';
 }
 
+function buildServiceDurationById(services) {
+  return services.reduce((accumulator, service) => {
+    const duration = Number(service.duration_minutes ?? service.duration);
+
+    if (Number.isFinite(duration) && duration > 0) {
+      accumulator[String(service.id)] = duration;
+    }
+
+    return accumulator;
+  }, {});
+}
+
+function resolveServiceDuration(appointment, serviceDurationById) {
+  const embeddedDuration = Number(
+    appointment?.service?.duration_minutes ??
+      appointment?.service?.duration ??
+      appointment?.service_duration_minutes ??
+      appointment?.duration_minutes
+  );
+
+  if (Number.isFinite(embeddedDuration) && embeddedDuration > 0) {
+    return embeddedDuration;
+  }
+
+  const serviceId = appointment?.service_id ?? appointment?.serviceId ?? appointment?.service?.id;
+
+  if (serviceId) {
+    return serviceDurationById[String(serviceId)] || null;
+  }
+
+  return null;
+}
+
 export function useAgendaBarbeiroPage() {
   const [loggedUser, setLoggedUser] = useState(getLoggedUser());
   const [schedules, setSchedules] = useState([]);
@@ -49,6 +82,7 @@ export function useAgendaBarbeiroPage() {
 
   useEffect(() => {
     const controller = new AbortController();
+    let active = true;
 
     async function carregarAgenda() {
       try {
@@ -56,6 +90,10 @@ export function useAgendaBarbeiroPage() {
         setErro('');
 
         if (!loggedUser?.token || !loggedUser?.admin) {
+          if (!active) {
+            return;
+          }
+
           setErro('Acesso restrito para administradores autenticados.');
           return;
         }
@@ -66,13 +104,25 @@ export function useAgendaBarbeiroPage() {
         ]);
 
         if (schedulesResult.status === 'fulfilled') {
+          if (!active) {
+            return;
+          }
+
           setSchedules(schedulesResult.value);
         } else {
+          if (!active || schedulesResult.reason?.name === 'AbortError') {
+            return;
+          }
+
           setErro('Nao foi possivel carregar a agenda do barbeiro.');
           return;
         }
 
         if (servicesResult.status === 'fulfilled') {
+          if (!active) {
+            return;
+          }
+
           setServices(servicesResult.value);
         }
 
@@ -90,30 +140,40 @@ export function useAgendaBarbeiroPage() {
           const nextAppointmentDetailsById = {};
 
           appointmentResults.forEach((result, index) => {
-            if (result.status === 'fulfilled') {
+            if (active && result.status === 'fulfilled') {
               nextAppointmentDetailsById[String(appointmentIds[index])] = result.value;
             }
           });
 
-          setAppointmentDetailsById(nextAppointmentDetailsById);
+          if (active) {
+            setAppointmentDetailsById(nextAppointmentDetailsById);
+          }
         } else {
-          setAppointmentDetailsById({});
+          if (active) {
+            setAppointmentDetailsById({});
+          }
         }
       } catch (error) {
-        if (error.name !== 'AbortError') {
+        if (active && error.name !== 'AbortError') {
           setErro(error.message || 'Falha ao carregar a agenda do barbeiro.');
         }
       } finally {
-        setCarregando(false);
+        if (active) {
+          setCarregando(false);
+        }
       }
     }
 
     carregarAgenda();
 
-    return () => controller.abort();
+    return () => {
+      active = false;
+      controller.abort('useAgendaBarbeiroPage cleanup');
+    };
   }, [loggedUser?.token, loggedUser?.admin]);
 
   const serviceNameById = useMemo(() => buildServiceNameById(services), [services]);
+  const serviceDurationById = useMemo(() => buildServiceDurationById(services), [services]);
 
   const scheduleList = useMemo(() => {
     const groupedSchedules = schedules.reduce((accumulator, slot) => {
@@ -142,9 +202,10 @@ export function useAgendaBarbeiroPage() {
       return {
         ...group,
         serviceName: resolveServiceName(appointment, serviceNameById),
+        serviceDuration: resolveServiceDuration(appointment, serviceDurationById),
       };
     });
-  }, [appointmentDetailsById, schedules, serviceNameById]);
+  }, [appointmentDetailsById, schedules, serviceDurationById, serviceNameById]);
 
   return {
     scheduleList,
