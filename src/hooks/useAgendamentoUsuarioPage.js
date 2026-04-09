@@ -204,11 +204,6 @@ export function useAgendamentoUsuarioPage() {
   };
 
   const handleDelete = async (appointmentId) => {
-    const shouldDelete = window.confirm('Deseja excluir este agendamento?');
-    if (!shouldDelete) {
-      return;
-    }
-
     try {
       setIsSubmitting(true);
       setMessage(null);
@@ -221,11 +216,13 @@ export function useAgendamentoUsuarioPage() {
 
       setMessage({ type: 'success', text: 'Agendamento excluído com sucesso.' });
       await refreshData();
+      return true;
     } catch (error) {
       setMessage({
         type: 'error',
         text: error.message || 'Nao foi possivel excluir o agendamento.',
       });
+      return false;
     } finally {
       setIsSubmitting(false);
     }

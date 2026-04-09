@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react';
 import MessageBanner from '../componentes/MessageBanner';
 import '../estilo/AgendamentoUsuario.css';
 import { TIME_SLOTS, formatAppointmentDate } from '../utils/appointments';
 import { useAgendamentoUsuarioPage } from '../hooks/useAgendamentoUsuarioPage';
 
 function AgendamentoUsuario() {
+    const [pendingDeleteAppointment, setPendingDeleteAppointment] = useState(null);
     const {
         appointments,
         services,
@@ -25,6 +27,36 @@ function AgendamentoUsuario() {
         handleEdit,
         handleDelete,
     } = useAgendamentoUsuarioPage();
+
+    const requestDelete = (appointment) => {
+        setPendingDeleteAppointment(appointment);
+    };
+
+    const cancelDelete = () => {
+        setPendingDeleteAppointment(null);
+    };
+
+    useEffect(() => {
+        if (pendingDeleteAppointment) {
+            document.body.style.overflow = 'hidden';
+        }
+
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [pendingDeleteAppointment]);
+
+    const confirmDelete = async () => {
+        if (!pendingDeleteAppointment) {
+            return;
+        }
+
+        const deleted = await handleDelete(pendingDeleteAppointment.id);
+
+        if (deleted) {
+            setPendingDeleteAppointment(null);
+        }
+    };
 
     const getStatusLabel = (status) => {
         const labels = {
@@ -92,7 +124,7 @@ function AgendamentoUsuario() {
                                     <button
                                         type="button"
                                         className="agendamento-usuario__danger-button"
-                                        onClick={() => handleDelete(currentAppointmentId)}
+                                        onClick={() => requestDelete({ ...appointment, id: currentAppointmentId })}
                                         disabled={isSubmitting}
                                     >
                                         Excluir
@@ -181,6 +213,37 @@ function AgendamentoUsuario() {
                                 {isSubmitting ? 'Salvando...' : 'Salvar alterações'}
                             </button>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {pendingDeleteAppointment && (
+                <div
+                    className="agendamento-usuario__overlay agendamento-usuario__overlay--delete"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="delete-agendamento-title"
+                    onClick={cancelDelete}
+                >
+                    <div className="agendamento-usuario__confirm-card" onClick={(event) => event.stopPropagation()}>
+                        <h2 id="delete-agendamento-title">Confirmar exclusão</h2>
+                        <p>
+                            Tem certeza que deseja excluir este agendamento? Essa ação não pode ser desfeita.
+                        </p>
+
+                        <div className="agendamento-usuario__confirm-summary">
+                            <strong>{serviceNameById[String(pendingDeleteAppointment.service_id)] || `Serviço #${pendingDeleteAppointment.service_id}`}</strong>
+                            <span>{formatAppointmentDate(pendingDeleteAppointment)}</span>
+                        </div>
+
+                        <div className="agendamento-usuario__confirm-actions">
+                            <button type="button" className="agendamento-usuario__ghost-button" onClick={cancelDelete} disabled={isSubmitting}>
+                                Cancelar
+                            </button>
+                            <button type="button" className="agendamento-usuario__danger-button" onClick={confirmDelete} disabled={isSubmitting}>
+                                {isSubmitting ? 'Excluindo...' : 'Sim, excluir'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

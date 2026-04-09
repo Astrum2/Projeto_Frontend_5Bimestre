@@ -1,3 +1,13 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+}
+
 .App {
   text-align: center;
 }
@@ -48,18 +58,3 @@
   font-weight: bold;
 }
 
-.login_button {
-  background-color: #ffffff;
-  color: #000000;
-  border: none;
-  padding: 10px 25px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.login_button:hover {
-  background-color: #ffffff;
-}

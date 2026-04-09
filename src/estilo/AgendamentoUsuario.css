@@ -134,6 +134,59 @@
   box-shadow: 0 22px 60px rgba(0, 0, 0, 0.35);
 }
 
+.agendamento-usuario__overlay--delete {
+  z-index: 2100;
+}
+
+.agendamento-usuario__confirm-card {
+  width: min(520px, 100%);
+  padding: 24px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%);
+  border-radius: 18px;
+  border: 1px solid rgba(9, 57, 86, 0.12);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+}
+
+.agendamento-usuario__confirm-card h2 {
+  margin: 0;
+  color: #093956;
+}
+
+.agendamento-usuario__confirm-card p {
+  margin: 10px 0 0;
+  color: #4a4a4a;
+}
+
+.agendamento-usuario__confirm-summary {
+  display: grid;
+  gap: 4px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  background: #eef4f7;
+  border-radius: 12px;
+}
+
+.agendamento-usuario__confirm-summary strong {
+  color: #093956;
+}
+
+.agendamento-usuario__confirm-summary span {
+  color: #4a4a4a;
+  font-size: 14px;
+}
+
+.agendamento-usuario__confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.agendamento-usuario__confirm-actions .agendamento-usuario__ghost-button,
+.agendamento-usuario__confirm-actions .agendamento-usuario__danger-button {
+  min-width: 132px;
+}
+
 .agendamento-usuario__cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -244,5 +297,14 @@
   .agendamento-usuario__overlay-card {
     max-height: 96vh;
     padding: 18px;
+  }
+
+  .agendamento-usuario__confirm-actions {
+    flex-direction: column-reverse;
+  }
+
+  .agendamento-usuario__confirm-actions .agendamento-usuario__ghost-button,
+  .agendamento-usuario__confirm-actions .agendamento-usuario__danger-button {
+    width: 100%;
   }
 }
