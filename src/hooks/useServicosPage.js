@@ -160,9 +160,11 @@ export function useServicosPage() {
 
     try {
       const token = loggedUser?.token;
-      const response = await createService(newServiceForm, token);
+      await createService(newServiceForm, token);
 
-      setServicos((prev) => [...prev, response]);
+      const servicesAtualizados = await fetchServices();
+      setServicos(servicesAtualizados);
+
       setMessage({ type: 'success', text: 'Serviço criado com sucesso!' });
       setIsCreating(false);
       setNewServiceForm(INITIAL_SERVICE_FORM);
