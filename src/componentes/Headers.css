@@ -1,5 +1,6 @@
 .header {
   background-color: #000000;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -9,9 +10,17 @@
 
 .menu_header {
   display: flex;
-  gap: 30px;
+  align-items: center;
   flex: 1;
-  justify-content: center;
+  justify-content: flex-end;
+}
+
+.main-links {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 30px;
 }
 
 .menu_header a {
@@ -130,12 +139,20 @@
   text-decoration: none;
   font-size: 14px;
   font-weight: 600;
-  background-color: #1B1B1B;
+  background-color: #093956;
   color: #ffffff;
 }
 
 .profile-link:hover {
-  background-color: #2E2E2E;
+  background-color: #0a2e44;
+}
+
+.agenda-barbeiro-link {
+  background-color: #093956;
+}
+
+.agenda-barbeiro-link:hover {
+  background-color: #0a2e44;
 }
 
 .logout-button {
@@ -145,13 +162,13 @@
   border-radius: 6px;
   padding: 10px;
   font-size: 14px;
-  background-color: #093956;
+  background-color: #9A1F1B;
   color: #ffffff;
   cursor: pointer;
 }
 
 .logout-button:hover {
-  background-color: #0a2e44;
+  background-color: #7a1f1c;
 }
 
 .hamburger {
@@ -208,6 +225,16 @@
     padding: 20px 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
     z-index: 1000;
+  }
+
+  .main-links {
+    position: static;
+    transform: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
   }
 
   .menu_header.open {

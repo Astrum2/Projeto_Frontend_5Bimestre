@@ -52,10 +52,12 @@ function Header() {
             <button className="hamburger" onClick={() => setIsOpen(!isOpen)}><span></span><span></span><span></span></button>
 
             <nav className={`menu_header ${isOpen ? 'open' : ''}`}>
-                <Link to="/" onClick={() => setIsOpen(false)}>Início</Link>
-                <Link to="/Serviços" onClick={() => setIsOpen(false)}>Serviços</Link>
-                <Link to="/Sobre" onClick={() => setIsOpen(false)}>Sobre</Link>
-                <Link to="/Agendamento" onClick={() => setIsOpen(false)}>Agendamento</Link>
+                <div className="main-links">
+                    <Link to="/" onClick={() => setIsOpen(false)}>Início</Link>
+                    <Link to="/Serviços" onClick={() => setIsOpen(false)}>Serviços</Link>
+                    <Link to="/Sobre" onClick={() => setIsOpen(false)}>Sobre</Link>
+                    <Link to="/Agendamento" onClick={() => setIsOpen(false)}>Agendamento</Link>
+                </div>
 
 
                 {loggedUser ? (
@@ -87,7 +89,7 @@ function Header() {
                                 </Link>
                                 {loggedUser?.admin && (
                                     <Link
-                                        className="profile-link"
+                                        className="profile-link agenda-barbeiro-link"
                                         to="/AgendaBarbeiro"
                                         onClick={() => {
                                             setIsUserMenuOpen(false);
