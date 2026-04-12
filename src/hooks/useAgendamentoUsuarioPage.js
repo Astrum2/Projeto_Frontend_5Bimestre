@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getLoggedUser } from '../utils/auth';
 import { fetchBarbers, fetchServices } from '../services/appointmentsApi';
@@ -55,7 +55,7 @@ export function useAgendamentoUsuarioPage() {
     }, {});
   }, [barbers]);
 
-  const loadReferenceData = async () => {
+  const loadReferenceData = useCallback(async () => {
     const [servicesResult, barbersResult] = await Promise.allSettled([
       fetchServices(),
       fetchBarbers(),
@@ -72,9 +72,13 @@ export function useAgendamentoUsuarioPage() {
     } else {
       setMessage({ type: 'error', text: 'Nao foi possivel carregar os barbeiros.' });
     }
-  };
+  }, []);
 
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
+    if (!authUser?.id || !authUser?.token) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -96,7 +100,7 @@ export function useAgendamentoUsuarioPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [authUser?.id, authUser?.token, loadReferenceData]);
 
   useEffect(() => {
     if (!authUser?.id || !authUser?.token) {
@@ -105,7 +109,7 @@ export function useAgendamentoUsuarioPage() {
     }
 
     refreshData();
-  }, [authUser?.id, authUser?.token, navigate]);
+  }, [authUser?.id, authUser?.token, navigate, refreshData]);
 
   useEffect(() => {
     document.body.style.overflow = editingAppointmentId ? 'hidden' : '';
