@@ -33,7 +33,6 @@ function Sobre() {
                                         evento.currentTarget.src = "/imagens/Logo.png";
                                     }}
                                 />
-                                <span className="barbeiro-numero">#{barbeiro.id}</span>
                                 <h2>{barbeiro.name}</h2>
                             </article>
                         ))

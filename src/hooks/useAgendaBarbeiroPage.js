@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { authChangedEvent, getLoggedUser } from '../utils/auth';
-import { fetchAppointmentDetails, fetchBarberSchedules, fetchServices } from '../services/appointmentsApi';
+import { fetchAppointmentDetails, fetchBarberSchedules, fetchBarbers, fetchServices } from '../services/appointmentsApi';
 
 function buildServiceNameById(services) {
   return services.reduce((accumulator, service) => {
@@ -64,6 +64,7 @@ export function useAgendaBarbeiroPage() {
   const [loggedUser, setLoggedUser] = useState(getLoggedUser());
   const [schedules, setSchedules] = useState([]);
   const [services, setServices] = useState([]);
+  const [loggedBarberId, setLoggedBarberId] = useState(null);
   const [appointmentDetailsById, setAppointmentDetailsById] = useState({});
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
@@ -89,7 +90,7 @@ export function useAgendaBarbeiroPage() {
         setCarregando(true);
         setErro('');
 
-        if (!loggedUser?.token || !loggedUser?.admin) {
+        if (!loggedUser?.token || !loggedUser?.admin || !loggedUser?.id) {
           if (!active) {
             return;
           }
@@ -98,17 +99,58 @@ export function useAgendaBarbeiroPage() {
           return;
         }
 
-        const [schedulesResult, servicesResult] = await Promise.allSettled([
+        const [schedulesResult, servicesResult, barbersResult] = await Promise.allSettled([
           fetchBarberSchedules(loggedUser.token, controller.signal),
           fetchServices(controller.signal),
+          fetchBarbers(controller.signal),
         ]);
+
+        if (barbersResult.status === 'fulfilled') {
+          const matchedBarber = barbersResult.value.find((barber) => {
+            const barberUserId = barber?.user_id ?? barber?.userId ?? barber?.user?.id;
+            return Number(barberUserId) === Number(loggedUser.id);
+          });
+
+          if (!active) {
+            return;
+          }
+
+          if (!matchedBarber?.id) {
+            setErro('Nenhum barbeiro vinculado ao usuario logado foi encontrado.');
+            setSchedules([]);
+            setAppointmentDetailsById({});
+            setLoggedBarberId(null);
+            return;
+          }
+
+          const resolvedBarberId = Number(matchedBarber.id);
+          setLoggedBarberId(Number.isFinite(resolvedBarberId) ? resolvedBarberId : null);
+        } else {
+          if (!active || barbersResult.reason?.name === 'AbortError') {
+            return;
+          }
+
+          setErro('Nao foi possivel validar o barbeiro logado.');
+          return;
+        }
 
         if (schedulesResult.status === 'fulfilled') {
           if (!active) {
             return;
           }
 
-          setSchedules(schedulesResult.value);
+          const matchedBarber = barbersResult.value.find((barber) => {
+            const barberUserId = barber?.user_id ?? barber?.userId ?? barber?.user?.id;
+            return Number(barberUserId) === Number(loggedUser.id);
+          });
+          const matchedBarberId = Number(matchedBarber?.id);
+
+          const filteredSchedules = schedulesResult.value.filter((slot) => {
+            const slotBarberId = slot?.barber_id ?? slot?.barberId ?? slot?.barber?.id;
+            return Number(slotBarberId) === matchedBarberId;
+          });
+
+          setSchedules(filteredSchedules);
         } else {
           if (!active || schedulesResult.reason?.name === 'AbortError') {
             return;
@@ -170,7 +212,7 @@ export function useAgendaBarbeiroPage() {
       active = false;
       controller.abort('useAgendaBarbeiroPage cleanup');
     };
-  }, [loggedUser?.token, loggedUser?.admin]);
+  }, [loggedUser?.token, loggedUser?.admin, loggedUser?.id]);
 
   const serviceNameById = useMemo(() => buildServiceNameById(services), [services]);
   const serviceDurationById = useMemo(() => buildServiceDurationById(services), [services]);
@@ -196,15 +238,27 @@ export function useAgendaBarbeiroPage() {
       return accumulator;
     }, {});
 
-    return Object.values(groupedSchedules).map((group) => {
-      const appointment = group.appointment_id ? appointmentDetailsById[String(group.appointment_id)] : null;
+    return Object.values(groupedSchedules)
+      .map((group) => {
+        const appointment = group.appointment_id ? appointmentDetailsById[String(group.appointment_id)] : null;
+        const sortedSlots = [...group.slots].sort((a, b) => String(a.start || '').localeCompare(String(b.start || '')));
 
-      return {
-        ...group,
-        serviceName: resolveServiceName(appointment, serviceNameById),
-        serviceDuration: resolveServiceDuration(appointment, serviceDurationById),
-      };
-    });
+        return {
+          ...group,
+          slots: sortedSlots,
+          serviceName: resolveServiceName(appointment, serviceNameById),
+          serviceDuration: resolveServiceDuration(appointment, serviceDurationById),
+        };
+      })
+      .sort((a, b) => {
+        const dateCompare = String(a.date || '').localeCompare(String(b.date || ''));
+
+        if (dateCompare !== 0) {
+          return dateCompare;
+        }
+
+        return String(a.slots[0]?.start || '').localeCompare(String(b.slots[0]?.start || ''));
+      });
   }, [appointmentDetailsById, schedules, serviceDurationById, serviceNameById]);
 
   return {
@@ -212,5 +266,6 @@ export function useAgendaBarbeiroPage() {
     carregando,
     erro,
     loggedUser,
+    loggedBarberId,
   };
 }
