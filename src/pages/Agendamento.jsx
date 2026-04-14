@@ -30,7 +30,7 @@ function Agendamento() {
             <p>Preencha os dados abaixo para reservar seu horario.</p>
 
             {!usuarioAutenticado && (
-                <p className="status-servicos-agendamento erro">Faca login para criar um agendamento.</p>
+                <p className="status-servicos-agendamento erro alerta-login">Faca login para criar um agendamento.</p>
             )}
 
             <form className="form-agendamento" onSubmit={enviarAgendamento}>
