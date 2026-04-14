@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { setLoggedUser } from '../utils/auth';
-import { formatCPF, isValidEmail, validarCPF, validarSenha } from '../utils/validators';
-import { loginAfterRegistration, registerUser } from '../services/registrationApi';
+import { getLoggedUser, setLoggedUser } from '../utils/auth';
+import { formatCPF, formatTelefone, isValidEmail, normalizeTelefone, validarCPF, validarSenha } from '../utils/validators';
+import { loginAfterRegistration, registerUser, uploadRegistrationImage } from '../services/registrationApi';
 
 const INITIAL_FORM_DATA = {
   nome: '',
@@ -10,11 +10,17 @@ const INITIAL_FORM_DATA = {
   senha: '',
   confirmarSenha: '',
   cpf: '',
+  telefone: '',
+  imagem: null,
+  imagemNome: '',
+  ativo: true,
 };
 
 export function useCadastroPage() {
   const navigate = useNavigate();
   const redirectTimeoutRef = useRef(null);
+  const [authUser] = useState(getLoggedUser());
+  const isAdmin = useMemo(() => authUser?.admin === true, [authUser?.admin]);
 
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [errors, setErrors] = useState({});
@@ -30,8 +36,32 @@ export function useCadastroPage() {
   }, []);
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
-    const newValue = name === 'cpf' ? formatCPF(value) : value;
+    const { name, value, type, checked, files } = event.target;
+
+    if (type === 'checkbox') {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: checked,
+      }));
+      return;
+    }
+
+    if (type === 'file') {
+      const file = files?.[0];
+      setFormData((prev) => ({
+        ...prev,
+        imagem: file || null,
+        imagemNome: file?.name || '',
+      }));
+      return;
+    }
+
+    let newValue = value;
+    if (name === 'cpf') {
+      newValue = formatCPF(value);
+    } else if (name === 'telefone') {
+      newValue = formatTelefone(value);
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -82,25 +112,47 @@ export function useCadastroPage() {
     try {
       setIsSubmitting(true);
 
-      await registerUser({
+      let photoName = '';
+      if (isAdmin && formData.imagem) {
+        const uploadResponse = await uploadRegistrationImage(formData.imagem, authUser?.token);
+        photoName = uploadResponse?.fileName || '';
+      }
+
+      const payload = {
         name: formData.nome.trim(),
         email: formData.email.trim(),
         password: formData.senha,
         cpf: formData.cpf,
-      });
+      };
 
-      const loginResponse = await loginAfterRegistration(formData.email.trim(), formData.senha);
+      if (isAdmin) {
+        payload.admin = true;
+        payload.phone = normalizeTelefone(formData.telefone);
+        payload.active = formData.ativo;
+        if (photoName) {
+          payload.photo = photoName;
+        }
+      }
 
-      setLoggedUser({
-        nome: formData.nome.trim(),
-        email: formData.email.trim(),
-        token: loginResponse?.token,
-      });
+      await registerUser(payload);
 
-      setMessage({ type: 'success', text: 'Cadastro realizado com sucesso!' });
-      redirectTimeoutRef.current = window.setTimeout(() => {
-        navigate('/');
-      }, 1200);
+      if (isAdmin) {
+        setMessage({ type: 'success', text: 'Novo barbeiro criado com sucesso!' });
+        setFormData(INITIAL_FORM_DATA);
+      } else {
+        const loginResponse = await loginAfterRegistration(formData.email.trim(), formData.senha);
+
+        setLoggedUser({
+          nome: formData.nome.trim(),
+          email: formData.email.trim(),
+          token: loginResponse?.token,
+        });
+
+        setMessage({ type: 'success', text: 'Cadastro realizado com sucesso!' });
+        redirectTimeoutRef.current = window.setTimeout(() => {
+          navigate('/');
+        }, 1200);
+      }
     } catch (error) {
       setMessage({
         type: 'error',
@@ -116,6 +168,7 @@ export function useCadastroPage() {
     errors,
     message,
     isSubmitting,
+    isAdmin,
     handleChange,
     handleSubmit,
   };

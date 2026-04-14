@@ -40,6 +40,22 @@ input:focus {
   margin-top: 5px;
 }
 
+.cadastro-container label[for="ativo"] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.cadastro-container input[type="checkbox"] {
+  width: auto;
+  padding: 0;
+  border: none;
+  box-sizing: border-box;
+  cursor: pointer;
+  accent-color: #093956;
+}
+
 button {
   width: 100%;
   padding: 12px;

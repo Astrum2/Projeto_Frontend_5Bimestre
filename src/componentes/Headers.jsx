@@ -88,16 +88,28 @@ function Header() {
                                     Meu Agendamentos
                                 </Link>
                                 {loggedUser?.admin && (
-                                    <Link
-                                        className="profile-link agenda-barbeiro-link"
-                                        to="/AgendaBarbeiro"
-                                        onClick={() => {
-                                            setIsUserMenuOpen(false);
-                                            setIsOpen(false);
-                                        }}
-                                    >
-                                        Agenda Barbeiro
-                                    </Link>
+                                    <>
+                                        <Link
+                                            className="profile-link agenda-barbeiro-link"
+                                            to="/AgendaBarbeiro"
+                                            onClick={() => {
+                                                setIsUserMenuOpen(false);
+                                                setIsOpen(false);
+                                            }}
+                                        >
+                                            Agenda Barbeiro
+                                        </Link>
+                                        <Link
+                                            className="profile-link agenda-barbeiro-link"
+                                            to="/Cadastro"
+                                            onClick={() => {
+                                                setIsUserMenuOpen(false);
+                                                setIsOpen(false);
+                                            }}
+                                        >
+                                            Criar Novo Barbeiro
+                                        </Link>
+                                    </>
                                 )}
                                 <button className="logout-button" type="button" onClick={handleLogout}>Logout</button>
                             </div>

@@ -82,7 +82,7 @@ function AgendamentoUsuario() {
             <div className="agendamento-usuario__header">
                 <div>
                     <h1>Meus Agendamentos</h1>
-                    <p>Consulte, altere ou exclua seus agendamentos vinculados ao seu usuário.</p>
+                    <p>Consulte, altere ou exclua seus agendamentos.</p>
                 </div>
             </div>
 

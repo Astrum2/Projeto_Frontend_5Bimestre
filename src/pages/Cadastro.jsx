@@ -10,6 +10,7 @@ function Cadastro() {
     errors,
     message,
     isSubmitting,
+    isAdmin,
     handleChange,
     handleSubmit,
   } = useCadastroPage();
@@ -51,6 +52,46 @@ function Cadastro() {
           <input type="text" id="cpf" name="cpf" value={formData.cpf} onChange={handleChange} placeholder="000.000.000-00" maxLength={14} />
           {errors.cpf && <span className="error">{errors.cpf}</span>}
         </div>
+
+        {isAdmin && (
+          <>
+            <div className="form-group">
+              <label htmlFor="telefone">Telefone:</label>
+              <input
+                type="tel"
+                id="telefone"
+                name="telefone"
+                value={formData.telefone}
+                onChange={handleChange}
+                placeholder="(00) 00000-0000"
+                inputMode="numeric"
+                maxLength={15}
+              />
+              {errors.telefone && <span className="error">{errors.telefone}</span>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="imagem">Foto:</label>
+              <input type="file" id="imagem" name="imagem" onChange={handleChange} accept="image/*" />
+              {formData.imagemNome && <span>Arquivo selecionado: {formData.imagemNome}</span>}
+              {errors.imagem && <span className="error">{errors.imagem}</span>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="ativo">
+                <input
+                  type="checkbox"
+                  id="ativo"
+                  name="ativo"
+                  checked={formData.ativo}
+                  onChange={handleChange}
+                />
+                Ativo
+              </label>
+              {errors.ativo && <span className="error">{errors.ativo}</span>}
+            </div>
+          </>
+        )}
 
         <button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
