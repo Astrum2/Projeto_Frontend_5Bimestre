@@ -76,3 +76,8 @@
 .status-servicos-agendamento.erro {
   color: #9a1f1b;
 }
+
+.alerta-login {
+  font-size: 18px;
+  font-weight: 700;
+}
