@@ -22,5 +22,8 @@ export async function fetchBarbers(signal) {
 }
 
 export function filterActiveBarbers(barbers) {
-  return barbers.filter((barber) => Number(barber.active ?? barber.ativo) !== 0);
+  return barbers.filter((barber) => {
+    const active = barber.active ?? barber.ativo;
+    return active === true || active === 1 || active === '1';
+  });
 }

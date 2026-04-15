@@ -6,6 +6,7 @@ import {
   fetchBarbers,
   fetchServices,
 } from '../services/appointmentsApi';
+import { filterActiveBarbers } from '../services/barbersApi';
 import { toDateInputValue, toTimeInputValue } from '../utils/appointments';
 
 const INITIAL_APPOINTMENT_FORM = {
@@ -44,9 +45,9 @@ function isCancelledStatus(status) {
 function resolveAppointmentDurationMinutes(appointment, serviceDurationById) {
   const directDuration = Number(
     appointment?.duration_minutes ??
-      appointment?.service_duration_minutes ??
-      appointment?.service?.duration_minutes ??
-      appointment?.duration
+    appointment?.service_duration_minutes ??
+    appointment?.service?.duration_minutes ??
+    appointment?.duration
   );
 
   if (Number.isFinite(directDuration) && directDuration > 0) {
@@ -126,7 +127,7 @@ export function useAgendamentoPage() {
         setErroBarbeiros('');
 
         const lista = await fetchBarbers(controller.signal);
-        setBarbeiros(lista);
+        setBarbeiros(filterActiveBarbers(lista));
       } catch (error) {
         if (error.name !== 'AbortError') {
           setErroBarbeiros('Nao foi possivel carregar a lista de barbeiros.');
@@ -242,9 +243,9 @@ export function useAgendamentoPage() {
         const conflictStart = toMinutes(
           toTimeInputValue(
             conflictingAppointment?.time ||
-              conflictingAppointment?.appointment_time_slot ||
-              conflictingAppointment?.time_slot ||
-              conflictingAppointment?.created_at
+            conflictingAppointment?.appointment_time_slot ||
+            conflictingAppointment?.time_slot ||
+            conflictingAppointment?.created_at
           )
         );
         const conflictDuration = resolveAppointmentDurationMinutes(conflictingAppointment, serviceDurationById);
